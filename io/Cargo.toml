@@ -1,0 +1,12 @@
+[package]
+name = "nft-pixelboard-io"
+version = "0.1.0"
+edition = "2021"
+license = "GPL-3.0"
+authors = ["Gear Technologies"]
+
+[dependencies]
+gstd = { git = "https://github.com/gear-tech/gear.git", features = ["debug"] }
+gear-lib = { git = "https://github.com/gear-dapps/gear-lib.git" }
+codec = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
+scale-info = { version = "2", default-features = false, features = ["derive"] }
