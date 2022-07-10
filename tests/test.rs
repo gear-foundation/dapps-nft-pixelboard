@@ -71,8 +71,8 @@ fn test() {
         123,
         NFTPixelboardAction::Mint {
             token_metadata: Default::default(),
-            rectangle: ((1, 1), (20, 20)).into(),
-            painting: vec![1; 361],
+            rectangle: ((20, 10), (30, 20)).into(),
+            painting: vec![1; 100],
         },
     );
 
@@ -86,8 +86,8 @@ fn test() {
             123,
             NFTPixelboardAction::Mint {
                 token_metadata: Default::default(),
-                rectangle: ((22, 15), (24, 20)).into(),
-                painting: vec![7; 10]
+                rectangle: ((10, 20), (20, 30)).into(),
+                painting: vec![7; 100]
             }
         )
         .contains(&(123, NFTPixelboardEvent::Minted(1.into()).encode())));
@@ -102,9 +102,18 @@ fn test() {
     }
 
     let asdas: NFTPixelboardStateReply = prog
-        .meta_state(NFTPixelboardState::PixelInfo((23, 18).into()))
+        .meta_state(NFTPixelboardState::PixelInfo((10, 40).into()))
         .unwrap();
     if let NFTPixelboardStateReply::PixelInfo(pai) = asdas {
+        println!("{:?}", pai);
+    } else {
+        panic!("AAAAAA")
+    }
+
+    let asdas: NFTPixelboardStateReply = prog
+        .meta_state(NFTPixelboardState::TokenInfo(12.into()))
+        .unwrap();
+    if let NFTPixelboardStateReply::TokenInfo(pai) = asdas {
         println!("{:?}", pai);
     } else {
         panic!("AAAAAA")

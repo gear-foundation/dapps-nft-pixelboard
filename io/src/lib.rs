@@ -6,10 +6,20 @@ use gstd::{prelude::*, ActorId};
 pub type MinBlockSideLength = u16;
 pub type Color = u8;
 
-#[derive(Decode, Encode, TypeInfo, PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug)]
+#[derive(Decode, Encode, TypeInfo, PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug, Default)]
 pub struct Rectangle {
     pub upper_left_corner: Coordinates,
     pub lower_right_corner: Coordinates,
+}
+
+impl Rectangle {
+    pub fn width(&self) -> MinBlockSideLength {
+        self.lower_right_corner.x - self.upper_left_corner.x
+    }
+
+    pub fn height(&self) -> MinBlockSideLength {
+        self.lower_right_corner.y - self.upper_left_corner.y
+    }
 }
 
 impl
@@ -31,7 +41,7 @@ impl
     }
 }
 
-#[derive(Decode, Encode, TypeInfo, PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug)]
+#[derive(Decode, Encode, TypeInfo, PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug, Default)]
 pub struct Coordinates {
     pub x: MinBlockSideLength,
     pub y: MinBlockSideLength,
@@ -61,10 +71,10 @@ impl From<(MinBlockSideLength, MinBlockSideLength)> for Resolution {
     }
 }
 
-#[derive(Decode, Encode, TypeInfo, Clone, Copy, Debug)]
+#[derive(Decode, Encode, TypeInfo, Clone, Copy, Debug, Default)]
 pub struct Token(pub Rectangle, pub TokenInfo);
 
-#[derive(Decode, Encode, TypeInfo, Clone, Copy, Debug)]
+#[derive(Decode, Encode, TypeInfo, Clone, Copy, Debug, Default)]
 pub struct TokenInfo {
     pub token_id: TokenId,
     pub owner: ActorId,
