@@ -52,7 +52,7 @@ fn test() {
 
     init_nft(&system);
 
-    let mut f = prog.send(
+    let f = prog.send(
         123123,
         InitNFTPixelboard {
             ft_program: 2.into(),
@@ -65,7 +65,7 @@ fn test() {
             resolution: (50, 50).into(),
         },
     );
-    f.log().is_empty();
+    assert!(f.log().is_empty());
 
     let d = prog.send(
         123,
