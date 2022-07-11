@@ -71,8 +71,8 @@ fn test() {
         123,
         NFTPixelboardAction::Mint {
             token_metadata: Default::default(),
-            rectangle: ((20, 10), (30, 20)).into(),
-            painting: vec![1; 100],
+            rectangle: ((48, 48), (50, 50)).into(),
+            painting: vec![1; 4],
         },
     );
 
@@ -102,7 +102,47 @@ fn test() {
     }
 
     let asdas: NFTPixelboardStateReply = prog
-        .meta_state(NFTPixelboardState::PixelInfo((10, 40).into()))
+        .meta_state(NFTPixelboardState::PixelInfo((48, 48).into()))
+        .unwrap();
+    if let NFTPixelboardStateReply::PixelInfo(pai) = asdas {
+        println!("{:?}", pai);
+    } else {
+        panic!("AAAAAA")
+    }
+    let asdas: NFTPixelboardStateReply = prog
+        .meta_state(NFTPixelboardState::PixelInfo((47, 48).into()))
+        .unwrap();
+    if let NFTPixelboardStateReply::PixelInfo(pai) = asdas {
+        println!("{:?}", pai);
+    } else {
+        panic!("AAAAAA")
+    }
+    let asdas: NFTPixelboardStateReply = prog
+        .meta_state(NFTPixelboardState::PixelInfo((48, 47).into()))
+        .unwrap();
+    if let NFTPixelboardStateReply::PixelInfo(pai) = asdas {
+        println!("{:?}", pai);
+    } else {
+        panic!("AAAAAA")
+    }
+    let asdas: NFTPixelboardStateReply = prog
+        .meta_state(NFTPixelboardState::PixelInfo((47, 47).into()))
+        .unwrap();
+    if let NFTPixelboardStateReply::PixelInfo(pai) = asdas {
+        println!("{:?}", pai);
+    } else {
+        panic!("AAAAAA")
+    }
+    let asdas: NFTPixelboardStateReply = prog
+        .meta_state(NFTPixelboardState::PixelInfo((20, 30).into()))
+        .unwrap();
+    if let NFTPixelboardStateReply::PixelInfo(pai) = asdas {
+        println!("{:?}", pai);
+    } else {
+        panic!("AAAAAA")
+    }
+    let asdas: NFTPixelboardStateReply = prog
+        .meta_state(NFTPixelboardState::PixelInfo((19, 29).into()))
         .unwrap();
     if let NFTPixelboardStateReply::PixelInfo(pai) = asdas {
         println!("{:?}", pai);

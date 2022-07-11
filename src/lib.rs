@@ -324,32 +324,39 @@ extern "C" fn meta_state() -> *mut [i32; 2] {
             )
         }
         NFTPixelboardState::PixelInfo(coordinates) => {
-            let dot: Rectangle = (
-                (coordinates.x, coordinates.y),
-                (coordinates.x, coordinates.y),
-            )
-                .into();
+            let mut token = Default::default();
 
-            let token = program
-                .tokens_by_rectangles
-                .range(..dot)
-                .next_back()
-                .expect("");
-            NFTPixelboardStateReply::PixelInfo(Token(*token.0, *token.1))
+            if coordinates.x < program.resolution.width && coordinates.y < program.resolution.height
+            {
+                let dot: Rectangle = (
+                    (coordinates.x, coordinates.y + 1),
+                    (coordinates.x, coordinates.y),
+                )
+                    .into();
+
+                if let Some((&rectangle, &token_info)) =
+                    program.tokens_by_rectangles.range(..=dot).next_back()
+                {
+                    if coordinates.x < rectangle.lower_right_corner.x
+                        && coordinates.y < rectangle.lower_right_corner.y
+                    {
+                        token = Token(rectangle, token_info)
+                    }
+                }
+            }
+
+            NFTPixelboardStateReply::PixelInfo(token)
         }
         NFTPixelboardState::TokenInfo(token_id) => {
-            let rectangle = program
-                .rectangles_by_token_ids
-                .get(&token_id)
-                .cloned()
-                .unwrap_or_default();
-            let token = program
-                .tokens_by_rectangles
-                .get(&rectangle)
-                .cloned()
-                .unwrap_or_default();
+            let mut token = Default::default();
 
-            NFTPixelboardStateReply::TokenInfo(Token(rectangle, token))
+            if let Some(rectangle) = program.rectangles_by_token_ids.get(&token_id) {
+                if let Some(&token_info) = program.tokens_by_rectangles.get(rectangle) {
+                    token = Token(*rectangle, token_info);
+                }
+            }
+
+            NFTPixelboardStateReply::TokenInfo(token)
         }
         NFTPixelboardState::FTProgram => NFTPixelboardStateReply::FTProgram(program.ft_program),
         NFTPixelboardState::NFTProgram => NFTPixelboardStateReply::NFTProgram(program.nft_program),
