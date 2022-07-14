@@ -1,5 +1,5 @@
-use gtest::{System, Program};
 use ft_io::InitConfig as InitFT;
+use gtest::{Program, System};
 use nft_io::InitNFT;
 
 mod utils;
