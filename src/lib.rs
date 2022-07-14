@@ -8,12 +8,9 @@ mod utils;
 use utils::*;
 
 fn get_pixel_count<P: Into<usize>>(width: P, height: P) -> usize {
-    let pixel_count = width
-        .into()
-        .checked_mul(height.into())
-        .expect("Pixel count overflow");
+    let pixel_count = width.into() * height.into();
     if pixel_count == 0 {
-        panic!("Pixel count can't be zero");
+        panic!("Width or height of a canvas/NFT must't be 0");
     };
     pixel_count
 }
@@ -25,8 +22,8 @@ fn check_painting(painting: &Vec<Color>, pixel_count: usize) {
 }
 
 fn check_pixel_price(pixel_price: u128) {
-    if pixel_price > 2u128.pow(96) {
-        panic!("Pixel price can't be more than 2^96");
+    if pixel_price > MAX_PIXEL_PRICE {
+        panic!("Pixel price must't be more than 2^96");
     }
 }
 
@@ -251,9 +248,10 @@ extern "C" fn init() {
         panic!("`min_block_side_length` must be greater than 0");
     }
 
-    if config.resolution.width == 0 || config.resolution.height == 0 {
-        panic!("Each side of `resolution` must be greater than 0");
-    }
+    check_painting(
+        &config.painting,
+        get_pixel_count(config.resolution.width, config.resolution.height),
+    );
 
     if config.resolution.width % config.min_block_side_length != 0
         || config.resolution.height % config.min_block_side_length != 0
@@ -262,15 +260,10 @@ extern "C" fn init() {
     }
 
     if config.resale_commission_percentage > 100 {
-        panic!("`resale_commission_percentage` must be equal to or less than 100");
+        panic!("`resale_commission_percentage` mustn't be more than 100");
     }
 
     check_pixel_price(config.pixel_price);
-
-    check_painting(
-        &config.painting,
-        get_pixel_count(config.resolution.width, config.resolution.height),
-    );
 
     let program = NFTPixelboard {
         owner: config.owner,
@@ -335,7 +328,7 @@ extern "C" fn meta_state() -> *mut [i32; 2] {
                     .into();
 
                 if let Some((&rectangle, &token_info)) =
-                    program.tokens_by_rectangles.range(..=dot).next_back()
+                    program.tokens_by_rectangles.range(..dot).next_back()
                 {
                     if coordinates.x < rectangle.lower_right_corner.x
                         && coordinates.y < rectangle.lower_right_corner.y

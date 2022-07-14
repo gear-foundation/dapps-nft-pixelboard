@@ -3,6 +3,8 @@
 use gear_lib::non_fungible_token::token::{TokenId, TokenMetadata};
 use gstd::{prelude::*, ActorId};
 
+pub const MAX_PIXEL_PRICE: u128 = 2u128.pow(96);
+
 pub type MinBlockSideLength = u16;
 pub type Color = u8;
 
@@ -56,7 +58,7 @@ impl From<(MinBlockSideLength, MinBlockSideLength)> for Coordinates {
     }
 }
 
-#[derive(Decode, Encode, Default, Clone, Copy, TypeInfo)]
+#[derive(Decode, Encode, Default, Clone, Copy, TypeInfo, Debug, PartialEq, Eq)]
 pub struct Resolution {
     pub width: MinBlockSideLength,
     pub height: MinBlockSideLength,
@@ -81,7 +83,7 @@ pub struct TokenInfo {
     pub pixel_price: Option<u128>,
 }
 
-#[derive(Decode, Encode, TypeInfo)]
+#[derive(Decode, Encode, TypeInfo, Clone)]
 pub struct InitNFTPixelboard {
     pub owner: ActorId,
     pub min_block_side_length: MinBlockSideLength,
