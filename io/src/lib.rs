@@ -96,7 +96,7 @@ pub struct InitNFTPixelboard {
     pub nft_program: ActorId,
 }
 
-#[derive(Decode, Encode, TypeInfo)]
+#[derive(Decode, Encode, TypeInfo, Clone)]
 pub enum NFTPixelboardAction {
     Mint {
         rectangle: Rectangle,

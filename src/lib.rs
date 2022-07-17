@@ -10,7 +10,7 @@ use utils::*;
 fn get_pixel_count<P: Into<usize>>(width: P, height: P) -> usize {
     let pixel_count = width.into() * height.into();
     if pixel_count == 0 {
-        panic!("Width or height of a canvas/NFT must't be 0");
+        panic!("Width or height of a canvas/NFT mustn't be 0");
     };
     pixel_count
 }
@@ -327,13 +327,13 @@ extern "C" fn meta_state() -> *mut [i32; 2] {
                 )
                     .into();
 
-                if let Some((&rectangle, &token_info)) =
+                if let Some((rectangle, token_info)) =
                     program.tokens_by_rectangles.range(..dot).next_back()
                 {
                     if coordinates.x < rectangle.lower_right_corner.x
                         && coordinates.y < rectangle.lower_right_corner.y
                     {
-                        token = Token(rectangle, token_info)
+                        token = Token(*rectangle, *token_info)
                     }
                 }
             }
@@ -344,8 +344,8 @@ extern "C" fn meta_state() -> *mut [i32; 2] {
             let mut token = Default::default();
 
             if let Some(rectangle) = program.rectangles_by_token_ids.get(&token_id) {
-                if let Some(&token_info) = program.tokens_by_rectangles.get(rectangle) {
-                    token = Token(*rectangle, token_info);
+                if let Some(token_info) = program.tokens_by_rectangles.get(rectangle) {
+                    token = Token(*rectangle, *token_info);
                 }
             }
 
