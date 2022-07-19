@@ -113,11 +113,23 @@ impl NFTPixelboard {
             panic!("Given NFT rectangle collides with an existing NFT rectangle");
         }
 
-        // Payment and NFT minting
+        // Painting
 
         let rectangle_width = rectangle.width() as usize;
         let rectangle_height = rectangle.height() as usize;
         let rectangle_pixel_count = get_pixel_count(rectangle_width, rectangle_height);
+
+        check_painting(&painting, rectangle_pixel_count);
+        paint(
+            self.resolution,
+            &rectangle,
+            rectangle_width,
+            rectangle_height,
+            &mut self.painting,
+            painting,
+        );
+
+        // Payment and NFT minting
 
         transfer_ftokens(
             self.ft_program,
@@ -130,18 +142,6 @@ impl NFTPixelboard {
         let token_id = mint_nft(self.nft_program, token_metadata).await;
         add_nft_approval(self.nft_program, exec::program_id(), token_id).await;
         transfer_nft(self.nft_program, msg::source(), token_id).await;
-
-        // Painting
-
-        check_painting(&painting, rectangle_pixel_count);
-        paint(
-            self.resolution,
-            &rectangle,
-            rectangle_width,
-            rectangle_height,
-            &mut self.painting,
-            painting,
-        );
 
         // Insertion and replying
 
@@ -235,6 +235,10 @@ static mut PROGRAM: Option<NFTPixelboard> = None;
 #[no_mangle]
 extern "C" fn init() {
     let config: InitNFTPixelboard = msg::load().expect("Unable to decode `InitNFTPixelboard`");
+
+    if config.owner == ActorId::zero() {
+        panic!("Owner address can't be 0");
+    }
 
     if config.ft_program == ActorId::zero() {
         panic!("FT program address can't be 0");
