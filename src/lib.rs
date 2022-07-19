@@ -10,7 +10,7 @@ use utils::*;
 fn get_pixel_count<P: Into<usize>>(width: P, height: P) -> usize {
     let pixel_count = width.into() * height.into();
     if pixel_count == 0 {
-        panic!("Width or height of a canvas/NFT mustn't be 0");
+        panic!("Width & height of a canvas/NFT must be more than 0");
     };
     pixel_count
 }
@@ -23,7 +23,7 @@ fn check_painting(painting: &Vec<Color>, pixel_count: usize) {
 
 fn check_pixel_price(pixel_price: u128) {
     if pixel_price > MAX_PIXEL_PRICE {
-        panic!("Pixel price must't be more than 2^96");
+        panic!("`pixel_price` must't be more than 2^96");
     }
 }
 
@@ -110,7 +110,7 @@ impl NFTPixelboard {
                 && existing_rectangle.upper_left_corner.y < rectangle.lower_right_corner.y
                 && existing_rectangle.lower_right_corner.y > rectangle.upper_left_corner.y
         }) {
-            panic!("Given NFT rectangle collides with an existing NFT rectangle");
+            panic!("Given NFT rectangle collides with an existing one");
         }
 
         // Painting
