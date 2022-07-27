@@ -17,13 +17,13 @@ fn get_pixel_count<P: Into<usize>>(width: P, height: P) -> usize {
 
 fn check_painting(painting: &Vec<Color>, pixel_count: usize) {
     if painting.len() != pixel_count {
-        panic!("Pixel count in a painting must equal the count in a canvas/NFT");
+        panic!("`painting` length must equal a pixel count in a canvas/NFT");
     }
 }
 
 fn check_pixel_price(pixel_price: u128) {
     if pixel_price > MAX_PIXEL_PRICE {
-        panic!("`pixel_price` must't be more than 2^96");
+        panic!("`pixel_price` mustn't be more than `MAX_PIXEL_PRICE`");
     }
 }
 
@@ -32,12 +32,12 @@ fn get_mut_token_by_id<'a>(
     tokens: &'a mut BTreeMap<Rectangle, TokenInfo>,
     token_id: TokenId,
 ) -> (&'a Rectangle, &'a mut TokenInfo) {
-    let rectangle = rectangles.get(&token_id).expect("NFT not found by the ID");
+    let rectangle = rectangles.get(&token_id).expect("NFT not found by an ID");
     (
         rectangle,
         tokens
             .get_mut(rectangle)
-            .expect("NFT not found by the rectangle"),
+            .expect("NFT not found by a rectangle"),
     )
 }
 
@@ -73,7 +73,7 @@ struct NFTPixelboard {
     min_block_side_length: MinBlockSideLength,
     pixel_price: u128,
     resolution: Resolution,
-    resale_commission_percentage: u8,
+    commission_percentage: u8,
     painting: Vec<Color>,
 
     rectangles_by_token_ids: BTreeMap<TokenId, Rectangle>,
@@ -92,6 +92,14 @@ impl NFTPixelboard {
     ) {
         // Coordinates checks
 
+        if rectangle.upper_left_corner.x % self.min_block_side_length != 0
+            || rectangle.upper_left_corner.y % self.min_block_side_length != 0
+            || rectangle.lower_right_corner.x % self.min_block_side_length != 0
+            || rectangle.lower_right_corner.y % self.min_block_side_length != 0
+        {
+            panic!("Coordinates doesn't observe a block layout");
+        }
+
         if rectangle.upper_left_corner.x > rectangle.lower_right_corner.x
             || rectangle.upper_left_corner.y > rectangle.lower_right_corner.y
         {
@@ -101,7 +109,7 @@ impl NFTPixelboard {
         if rectangle.lower_right_corner.x > self.resolution.width
             || rectangle.lower_right_corner.y > self.resolution.height
         {
-            panic!("Coordinates are out of the canvas");
+            panic!("Coordinates are out of a canvas");
         }
 
         if self.tokens_by_rectangles.keys().any(|existing_rectangle| {
@@ -110,7 +118,7 @@ impl NFTPixelboard {
                 && existing_rectangle.upper_left_corner.y < rectangle.lower_right_corner.y
                 && existing_rectangle.lower_right_corner.y > rectangle.upper_left_corner.y
         }) {
-            panic!("Given NFT rectangle collides with an existing one");
+            panic!("Given NFT rectangle collides with already minted one");
         }
 
         // Painting
@@ -140,7 +148,6 @@ impl NFTPixelboard {
         .await;
 
         let token_id = mint_nft(self.nft_program, token_metadata).await;
-        add_nft_approval(self.nft_program, exec::program_id(), token_id).await;
         transfer_nft(self.nft_program, msg::source(), token_id).await;
 
         // Insertion and replying
@@ -168,15 +175,18 @@ impl NFTPixelboard {
         let pixel_price = token
             .pixel_price
             .unwrap_or_else(|| panic!("NFT isn't for sale"));
+        // get_pixel_count() isn't used here because it checks an NFT area for
+        // equality to 0, but here it's always not equal 0.
+        let token_price =
+            (rectangle.width() as usize * rectangle.height() as usize) as u128 * pixel_price;
+        let resale_commision = token_price * self.commission_percentage as u128 / 100;
+
+        transfer_ftokens(self.ft_program, msg::source(), self.owner, resale_commision).await;
         transfer_ftokens(
             self.ft_program,
             msg::source(),
             token.owner,
-            get_pixel_count(
-                rectangle.lower_right_corner.x - rectangle.upper_left_corner.x,
-                rectangle.lower_right_corner.y - rectangle.upper_left_corner.y,
-            ) as u128
-                * pixel_price,
+            token_price - resale_commision,
         )
         .await;
 
@@ -195,9 +205,11 @@ impl NFTPixelboard {
         )
         .1;
         assert_eq!(token.owner, msg::source());
+        assert!(token.pixel_price.is_none(), "NFT is already for sale");
 
         check_pixel_price(pixel_price);
         token.pixel_price = Some(pixel_price);
+        transfer_nft(self.nft_program, exec::program_id(), token_id).await;
 
         reply(NFTPixelboardEvent::ForSale(token_id));
     }
@@ -237,19 +249,19 @@ extern "C" fn init() {
     let config: InitNFTPixelboard = msg::load().expect("Unable to decode `InitNFTPixelboard`");
 
     if config.owner == ActorId::zero() {
-        panic!("Owner address can't be 0");
+        panic!("`owner` address mustn't be 0");
     }
 
     if config.ft_program == ActorId::zero() {
-        panic!("FT program address can't be 0");
+        panic!("`ft_program` address mustn't be 0");
     }
 
     if config.nft_program == ActorId::zero() {
-        panic!("NFT program address can't be 0");
+        panic!("`nft_program` address mustn't be 0");
     }
 
     if config.min_block_side_length == 0 {
-        panic!("`min_block_side_length` must be greater than 0");
+        panic!("`min_block_side_length` must be more than 0");
     }
 
     check_painting(
@@ -276,7 +288,7 @@ extern "C" fn init() {
         min_block_side_length: config.min_block_side_length,
         painting: config.painting,
         pixel_price: config.pixel_price,
-        resale_commission_percentage: config.resale_commission_percentage,
+        commission_percentage: config.resale_commission_percentage,
         resolution: config.resolution,
         ..Default::default()
     };
@@ -315,10 +327,8 @@ extern "C" fn meta_state() -> *mut [i32; 2] {
         NFTPixelboardState::MinBlockSideLength => {
             NFTPixelboardStateReply::MinBlockSideLength(program.min_block_side_length)
         }
-        NFTPixelboardState::ResaleCommissionPercentage => {
-            NFTPixelboardStateReply::ResaleCommissionPercentage(
-                program.resale_commission_percentage,
-            )
+        NFTPixelboardState::CommissionPercentage => {
+            NFTPixelboardStateReply::CommissionPercentage(program.commission_percentage)
         }
         NFTPixelboardState::PixelInfo(coordinates) => {
             let mut token = Default::default();

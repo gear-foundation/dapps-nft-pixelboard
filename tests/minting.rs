@@ -1,3 +1,5 @@
+use gear_lib::non_fungible_token::token::{Token as NFToken, TokenMetadata};
+
 pub mod utils;
 use utils::*;
 
@@ -6,17 +8,26 @@ fn minting_failures() {
     let system = initialize_system();
 
     let ft_program = FungibleToken::initialize(&system);
-    ft_program.mint(FOREIGN_USER, MAX_PIXEL_PRICE * 25);
+    ft_program.mint(FOREIGN_USER, MAX_PIXEL_PRICE * 36);
 
     let nft_program = NonFungibleToken::initialize(&system);
 
-    let pixelboard_program =
-        NFTPixelboard::initialize(&system, ft_program.actor_id(), nft_program.actor_id()).succeed();
+    let pixelboard_config = InitNFTPixelboard {
+        ft_program: ft_program.actor_id(),
+        min_block_side_length: 2,
+        nft_program: nft_program.actor_id(),
+        owner: OWNER.into(),
+        painting: vec![0; 100],
+        pixel_price: MAX_PIXEL_PRICE,
+        resale_commission_percentage: 100,
+        resolution: (10, 10).into(),
+    };
+    let pixelboard_program = NFTPixelboard::initialize_custom(&system, pixelboard_config).succeed();
 
-    let default_painting = vec![0; 25];
-    let default_rectangle = ((3, 3), (8, 8)).into();
+    let default_painting = vec![0; 36];
+    let default_rectangle = ((2, 2), (8, 8)).into();
 
-    // Should fail because the coordinates are mixed up.
+    // Should fail because the coordinates doesn't observe a block layout.
     pixelboard_program
         .mint(
             FOREIGN_USER,
@@ -24,15 +35,7 @@ fn minting_failures() {
             ((8, 3), (3, 8)).into(),
         )
         .failed();
-    // Should fail because the coordinates are mixed up.
-    pixelboard_program
-        .mint(
-            FOREIGN_USER,
-            default_painting.clone(),
-            ((8, 8), (3, 3)).into(),
-        )
-        .failed();
-    // Should fail because the coordinates are mixed up.
+    // Should fail because the coordinates doesn't observe a block layout.
     pixelboard_program
         .mint(
             FOREIGN_USER,
@@ -40,65 +43,254 @@ fn minting_failures() {
             ((3, 8), (8, 3)).into(),
         )
         .failed();
-    // Should fail because the coordinates are mixed up.
+    // Should fail because the coordinates are mixed up or belong to wrong corners.
     pixelboard_program
         .mint(
             FOREIGN_USER,
             default_painting.clone(),
-            ((3, 3), (11, 11)).into(),
+            ((8, 2), (2, 8)).into(),
         )
         .failed();
-    // Should fail because the coordinates are mixed up.
+    // Should fail because the coordinates are mixed up or belong to wrong corners.
     pixelboard_program
         .mint(
             FOREIGN_USER,
             default_painting.clone(),
-            ((11, 11), (8, 8)).into(),
+            ((8, 8), (2, 2)).into(),
         )
         .failed();
-    // Should fail because pixel count in a painting must equal the count in a NFT.
+    // Should fail because the coordinates are mixed up or belong to wrong corners.
     pixelboard_program
-        .mint(FOREIGN_USER, vec![0; 24], default_rectangle)
+        .mint(
+            FOREIGN_USER,
+            default_painting.clone(),
+            ((2, 8), (8, 2)).into(),
+        )
         .failed();
-    // Should fail because pixel count in a painting must equal the count in a NFT.
+    // Should fail because the coordinates are out of a canvas.
     pixelboard_program
-        .mint(FOREIGN_USER, vec![0; 26], default_rectangle)
+        .mint(
+            FOREIGN_USER,
+            default_painting.clone(),
+            ((2, 2), (12, 12)).into(),
+        )
+        .failed();
+    // Should fail because the coordinates are mixed up or belong to wrong corners.
+    pixelboard_program
+        .mint(
+            FOREIGN_USER,
+            default_painting.clone(),
+            ((12, 12), (8, 8)).into(),
+        )
+        .failed();
+    // Should fail because pixel `painting` length must equal a pixel count in an NFT.
+    pixelboard_program
+        .mint(FOREIGN_USER, vec![0; 35], default_rectangle)
+        .failed();
+    // Should fail because pixel `painting` length must equal a pixel count in an NFT.
+    pixelboard_program
+        .mint(FOREIGN_USER, vec![0; 37], default_rectangle)
+        .failed();
+    // Should fail because a width & height of an NFT must be more than 0.
+    pixelboard_program
+        .mint(FOREIGN_USER, vec![], ((4, 4), (4, 4)).into())
+        .failed();
+    // Should fail because a width & height of an NFT must be more than 0.
+    pixelboard_program
+        .mint(FOREIGN_USER, vec![], ((0, 4), (10, 4)).into())
+        .failed();
+    // Should fail because a width & height of an NFT must be more than 0.
+    pixelboard_program
+        .mint(FOREIGN_USER, vec![], ((4, 0), (4, 10)).into())
         .failed();
 
     pixelboard_program
         .mint(FOREIGN_USER, default_painting.clone(), default_rectangle)
         .check(0);
 
-    // Should fail because the given NFT rectangle collides with an existing one.
+    // Should fail because the given NFT rectangle collides with already minted one.
     pixelboard_program
         .mint(FOREIGN_USER, default_painting.clone(), default_rectangle)
         .failed();
-    // Should fail because the given NFT rectangle collides with an existing one.
+    // Should fail because the given NFT rectangle collides with already minted one.
     pixelboard_program
         .mint(
             FOREIGN_USER,
             default_painting.clone(),
-            ((0, 0), (5, 5)).into(),
+            ((0, 0), (4, 4)).into(),
         )
         .failed();
-    // Should fail because the given NFT rectangle collides with an existing one.
+    // Should fail because the given NFT rectangle collides with already minted one.
     pixelboard_program
         .mint(
             FOREIGN_USER,
             default_painting.clone(),
-            ((5, 0), (10, 5)).into(),
+            ((4, 0), (10, 4)).into(),
         )
         .failed();
-    // Should fail because the given NFT rectangle collides with an existing one.
+    // Should fail because the given NFT rectangle collides with already minted one.
     pixelboard_program
         .mint(
             FOREIGN_USER,
             default_painting.clone(),
-            ((0, 5), (5, 10)).into(),
+            ((0, 4), (4, 10)).into(),
         )
         .failed();
-    // Should fail because the given NFT rectangle collides with an existing one.
+    // Should fail because the given NFT rectangle collides with already minted one.
     pixelboard_program
-        .mint(FOREIGN_USER, default_painting, ((5, 5), (10, 10)).into())
+        .mint(FOREIGN_USER, default_painting, ((4, 4), (10, 10)).into())
         .failed();
+}
+
+#[test]
+fn minting_n_meta_state() {
+    let system = initialize_system();
+
+    let ft_program = FungibleToken::initialize(&system);
+    ft_program.mint(FOREIGN_USER, MAX_PIXEL_PRICE * (6 + 25 + 1));
+
+    let nft_program = NonFungibleToken::initialize(&system);
+    let pixelboard_program =
+        NFTPixelboard::initialize(&system, ft_program.actor_id(), nft_program.actor_id()).succeed();
+
+    let mut token = Token(
+        ((1, 1), (2, 7)).into(),
+        TokenInfo {
+            owner: FOREIGN_USER.into(),
+            pixel_price: None,
+            token_id: 0.into(),
+        },
+    );
+
+    pixelboard_program
+        .mint(FOREIGN_USER, vec![0; 6], token.0)
+        .check(0);
+
+    ft_program
+        .balance(FOREIGN_USER)
+        .check(MAX_PIXEL_PRICE * (25 + 1));
+    ft_program.balance(OWNER).check(MAX_PIXEL_PRICE * 6);
+    pixelboard_program.meta_state().token_info(0).check(token);
+    pixelboard_program
+        .meta_state()
+        .pixel_info((1, 4).into())
+        .check(token);
+
+    token.0 = ((3, 3), (8, 8)).into();
+    token.1.token_id = 1.into();
+    let token_metadata = TokenMetadata {
+        name: "The incredibly ordinary rectangle".into(),
+        description: "Really, it can't be more boring".into(),
+        media: "1029384756".into(),
+        reference: "https://youtu.be/dQw4w9WgXcQ".into(),
+    };
+    pixelboard_program
+        .mint_with_metadata(FOREIGN_USER, vec![0; 25], token.0, token_metadata.clone())
+        .check(1);
+
+    ft_program.balance(FOREIGN_USER).check(MAX_PIXEL_PRICE);
+    ft_program.balance(OWNER).check(MAX_PIXEL_PRICE * (6 + 25));
+    pixelboard_program.meta_state().token_info(1).check(token);
+    nft_program.meta_state().token_metadata(1).check(NFToken {
+        owner_id: FOREIGN_USER.into(),
+        description: token_metadata.description,
+        media: token_metadata.media,
+        name: token_metadata.name,
+        reference: token_metadata.reference,
+        id: token.1.token_id,
+        approved_account_ids: Default::default(),
+    });
+
+    // The NFT center.
+    pixelboard_program
+        .meta_state()
+        .pixel_info((5, 5).into())
+        .check(token);
+    // The NFT corners.
+    pixelboard_program
+        .meta_state()
+        .pixel_info((3, 3).into())
+        .check(token);
+    pixelboard_program
+        .meta_state()
+        .pixel_info((7, 7).into())
+        .check(token);
+    pixelboard_program
+        .meta_state()
+        .pixel_info((3, 7).into())
+        .check(token);
+    pixelboard_program
+        .meta_state()
+        .pixel_info((7, 3).into())
+        .check(token);
+    // Pixels outside of the token.
+    pixelboard_program
+        .meta_state()
+        .pixel_info((2, 2).into())
+        .check(Token::default());
+    pixelboard_program
+        .meta_state()
+        .pixel_info((8, 8).into())
+        .check(Token::default());
+    pixelboard_program
+        .meta_state()
+        .pixel_info((2, 8).into())
+        .check(Token::default());
+    pixelboard_program
+        .meta_state()
+        .pixel_info((8, 2).into())
+        .check(Token::default());
+    // A pixel between NFTs.
+    pixelboard_program
+        .meta_state()
+        .pixel_info((2, 5).into())
+        .check(Token::default());
+    // Pixels on the edge/outside of the canvas.
+    pixelboard_program
+        .meta_state()
+        .pixel_info((0, 0).into())
+        .check(Token::default());
+    pixelboard_program
+        .meta_state()
+        .pixel_info((9, 9).into())
+        .check(Token::default());
+    pixelboard_program
+        .meta_state()
+        .pixel_info((10, 10).into())
+        .check(Token::default());
+
+    token.0 = ((9, 9), (10, 10)).into();
+    token.1.token_id = 2.into();
+    // Minting a one pixel token.
+    pixelboard_program
+        .mint(FOREIGN_USER, vec![0], token.0)
+        .check(2);
+
+    ft_program.balance(FOREIGN_USER).check(0);
+    ft_program
+        .balance(OWNER)
+        .check(MAX_PIXEL_PRICE * (6 + 25 + 1));
+    pixelboard_program.meta_state().token_info(2).check(token);
+    pixelboard_program
+        .meta_state()
+        .pixel_info((9, 9).into())
+        .check(token);
+
+    // Pixels outside of the one pixel token.
+    pixelboard_program
+        .meta_state()
+        .pixel_info((8, 8).into())
+        .check(Token::default());
+    pixelboard_program
+        .meta_state()
+        .pixel_info((10, 10).into())
+        .check(Token::default());
+    pixelboard_program
+        .meta_state()
+        .pixel_info((8, 10).into())
+        .check(Token::default());
+    pixelboard_program
+        .meta_state()
+        .pixel_info((10, 8).into())
+        .check(Token::default());
 }

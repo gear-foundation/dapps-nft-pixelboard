@@ -23,17 +23,17 @@ fn initialization_failures() {
 
     let mut failed_pixelboard_config = pixelboard_config.clone();
     failed_pixelboard_config.owner = ActorId::zero();
-    // Should fail because the owner address is 0.
+    // Should fail because `owner` address mustn't be 0.
     NFTPixelboard::initialize_custom(&system, failed_pixelboard_config).failed();
 
     failed_pixelboard_config = pixelboard_config.clone();
     failed_pixelboard_config.ft_program = ActorId::zero();
-    // Should fail because the FT program address is 0.
+    // Should fail because `ft_program` address mustn't be 0.
     NFTPixelboard::initialize_custom(&system, failed_pixelboard_config).failed();
 
     failed_pixelboard_config = pixelboard_config.clone();
     failed_pixelboard_config.nft_program = ActorId::zero();
-    // Should fail because the NFT program address is 0.
+    // Should fail because `nft_program` address mustn't be 0.
     NFTPixelboard::initialize_custom(&system, failed_pixelboard_config).failed();
 
     failed_pixelboard_config = pixelboard_config.clone();
@@ -53,7 +53,7 @@ fn initialization_failures() {
 
     failed_pixelboard_config = pixelboard_config.clone();
     failed_pixelboard_config.resolution = (0, 0).into();
-    // Should fail because width & height of the canvas must be more than 0.
+    // Should fail because a width & height of a canvas must be more than 0.
     NFTPixelboard::initialize_custom(&system, failed_pixelboard_config).failed();
 
     failed_pixelboard_config = pixelboard_config.clone();
@@ -81,17 +81,17 @@ fn initialization_failures() {
 
     failed_pixelboard_config = pixelboard_config.clone();
     failed_pixelboard_config.pixel_price = MAX_PIXEL_PRICE + 1;
-    // Should fail because `pixel_price` must't be more than 2^96.
+    // Should fail because `pixel_price` mustn't be more than `MAX_PIXEL_PRICE`.
     NFTPixelboard::initialize_custom(&system, failed_pixelboard_config).failed();
 
     failed_pixelboard_config = pixelboard_config.clone();
     failed_pixelboard_config.painting = vec![1; 101];
-    // Should fail because a pixel count in a painting must equal the count in a canvas.
+    // Should fail because `painting` length must equal a pixel count in a canvas.
     NFTPixelboard::initialize_custom(&system, failed_pixelboard_config).failed();
 
     failed_pixelboard_config = pixelboard_config;
     failed_pixelboard_config.painting = vec![1; 99];
-    // Should fail because a pixel count in a painting must equal the count in a canvas.
+    // Should fail because `painting` length must equal a pixel count in a canvas.
     NFTPixelboard::initialize_custom(&system, failed_pixelboard_config).failed();
 }
 
@@ -104,7 +104,7 @@ fn initialization_n_meta_state() {
 
     let pixelboard_config = InitNFTPixelboard {
         ft_program: ft_program.actor_id(),
-        min_block_side_length: 10,
+        min_block_side_length: 1,
         nft_program: nft_program.actor_id(),
         owner: FOREIGN_USER.into(),
         painting: vec![0; 100],
