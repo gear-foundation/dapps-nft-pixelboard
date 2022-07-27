@@ -14,7 +14,7 @@ fn minting_failures() {
 
     let pixelboard_config = InitNFTPixelboard {
         ft_program: ft_program.actor_id(),
-        min_block_side_length: 2,
+        block_side_length: 2,
         nft_program: nft_program.actor_id(),
         owner: OWNER.into(),
         painting: vec![0; 100],

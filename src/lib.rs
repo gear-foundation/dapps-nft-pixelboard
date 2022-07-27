@@ -70,7 +70,7 @@ fn paint(
 #[derive(Default)]
 struct NFTPixelboard {
     owner: ActorId,
-    min_block_side_length: MinBlockSideLength,
+    block_side_length: BlockSideLength,
     pixel_price: u128,
     resolution: Resolution,
     commission_percentage: u8,
@@ -92,10 +92,10 @@ impl NFTPixelboard {
     ) {
         // Coordinates checks
 
-        if rectangle.upper_left_corner.x % self.min_block_side_length != 0
-            || rectangle.upper_left_corner.y % self.min_block_side_length != 0
-            || rectangle.lower_right_corner.x % self.min_block_side_length != 0
-            || rectangle.lower_right_corner.y % self.min_block_side_length != 0
+        if rectangle.upper_left_corner.x % self.block_side_length != 0
+            || rectangle.upper_left_corner.y % self.block_side_length != 0
+            || rectangle.lower_right_corner.x % self.block_side_length != 0
+            || rectangle.lower_right_corner.y % self.block_side_length != 0
         {
             panic!("Coordinates doesn't observe a block layout");
         }
@@ -260,8 +260,8 @@ extern "C" fn init() {
         panic!("`nft_program` address mustn't be 0");
     }
 
-    if config.min_block_side_length == 0 {
-        panic!("`min_block_side_length` must be more than 0");
+    if config.block_side_length == 0 {
+        panic!("`block_side_length` must be more than 0");
     }
 
     check_painting(
@@ -269,10 +269,10 @@ extern "C" fn init() {
         get_pixel_count(config.resolution.width, config.resolution.height),
     );
 
-    if config.resolution.width % config.min_block_side_length != 0
-        || config.resolution.height % config.min_block_side_length != 0
+    if config.resolution.width % config.block_side_length != 0
+        || config.resolution.height % config.block_side_length != 0
     {
-        panic!("Each side of `resolution` must be a multiple of `min_block_side_length`");
+        panic!("Each side of `resolution` must be a multiple of `block_side_length`");
     }
 
     if config.resale_commission_percentage > 100 {
@@ -285,7 +285,7 @@ extern "C" fn init() {
         owner: config.owner,
         ft_program: config.ft_program,
         nft_program: config.nft_program,
-        min_block_side_length: config.min_block_side_length,
+        block_side_length: config.block_side_length,
         painting: config.painting,
         pixel_price: config.pixel_price,
         commission_percentage: config.resale_commission_percentage,
@@ -324,8 +324,8 @@ extern "C" fn meta_state() -> *mut [i32; 2] {
         NFTPixelboardState::Painting => NFTPixelboardStateReply::Painting(program.painting.clone()),
         NFTPixelboardState::Resolution => NFTPixelboardStateReply::Resolution(program.resolution),
         NFTPixelboardState::PixelPrice => NFTPixelboardStateReply::PixelPrice(program.pixel_price),
-        NFTPixelboardState::MinBlockSideLength => {
-            NFTPixelboardStateReply::MinBlockSideLength(program.min_block_side_length)
+        NFTPixelboardState::BlockSideLength => {
+            NFTPixelboardStateReply::BlockSideLength(program.block_side_length)
         }
         NFTPixelboardState::CommissionPercentage => {
             NFTPixelboardStateReply::CommissionPercentage(program.commission_percentage)

@@ -22,7 +22,7 @@ impl<'a> NFTPixelboard<'a> {
             system,
             InitNFTPixelboard {
                 ft_program,
-                min_block_side_length: 1,
+                block_side_length: 1,
                 nft_program,
                 owner: OWNER.into(),
                 painting: vec![0; 100],
@@ -164,10 +164,10 @@ impl NFTPixelboardMetaState<'_> {
         }
     }
 
-    pub fn min_block_side_length(self) -> MetaStateReply<MinBlockSideLength> {
-        if let NFTPixelboardStateReply::MinBlockSideLength(reply) = self
+    pub fn block_side_length(self) -> MetaStateReply<BlockSideLength> {
+        if let NFTPixelboardStateReply::BlockSideLength(reply) = self
             .0
-            .meta_state(NFTPixelboardState::MinBlockSideLength)
+            .meta_state(NFTPixelboardState::BlockSideLength)
             .unwrap()
         {
             MetaStateReply(reply)

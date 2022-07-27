@@ -148,7 +148,7 @@ fn painting() {
     // A one pixel canvas.
     let mut pixelboard_config = InitNFTPixelboard {
         ft_program: ft_program.actor_id(),
-        min_block_side_length: 1,
+        block_side_length: 1,
         nft_program: nft_program.actor_id(),
         owner: FOREIGN_USER.into(),
         painting: vec![0],

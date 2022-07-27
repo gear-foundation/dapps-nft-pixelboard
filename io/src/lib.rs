@@ -9,18 +9,18 @@ use gstd::{prelude::*, ActorId};
 /// resale commission. Here's an explanation.
 ///
 /// The maximum number of pixels that a canvas can contain is
-/// [`MinBlockSideLength::MAX`]² = 2³². So the maximum price that each pixel
-/// can have is [`u128::MAX`] / [`MinBlockSideLength::MAX`]² = 2⁹⁶.
+/// [`BlockSideLength::MAX`]² = 2³². So the maximum price that each pixel
+/// can have is [`u128::MAX`] / [`BlockSideLength::MAX`]² = 2⁹⁶.
 ///
 /// To calculate a commission, the number can be multiplied by 100, so, to
 /// avoid an overflow, the number must be divided by 100. Hence 2⁹⁶ / 100.
 pub const MAX_PIXEL_PRICE: u128 = 2u128.pow(96) / 100;
 
-/// A minimum block side length.
+/// A block side length.
 ///
 /// It's also used to store pixel [`Coordinates`], [`Resolution`] of a canvas,
 /// and token [`Rectangle`]s.
-pub type MinBlockSideLength = u16;
+pub type BlockSideLength = u16;
 /// A pixel color.
 pub type Color = u8;
 
@@ -32,25 +32,25 @@ pub struct Rectangle {
 }
 
 impl Rectangle {
-    pub fn width(&self) -> MinBlockSideLength {
+    pub fn width(&self) -> BlockSideLength {
         self.lower_right_corner.x - self.upper_left_corner.x
     }
 
-    pub fn height(&self) -> MinBlockSideLength {
+    pub fn height(&self) -> BlockSideLength {
         self.lower_right_corner.y - self.upper_left_corner.y
     }
 }
 
 impl
     From<(
-        (MinBlockSideLength, MinBlockSideLength),
-        (MinBlockSideLength, MinBlockSideLength),
+        (BlockSideLength, BlockSideLength),
+        (BlockSideLength, BlockSideLength),
     )> for Rectangle
 {
     fn from(
         rectangle: (
-            (MinBlockSideLength, MinBlockSideLength),
-            (MinBlockSideLength, MinBlockSideLength),
+            (BlockSideLength, BlockSideLength),
+            (BlockSideLength, BlockSideLength),
         ),
     ) -> Self {
         Self {
@@ -63,12 +63,12 @@ impl
 /// Coordinates of some pixel on a canvas.
 #[derive(Decode, Encode, TypeInfo, PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug, Default)]
 pub struct Coordinates {
-    pub x: MinBlockSideLength,
-    pub y: MinBlockSideLength,
+    pub x: BlockSideLength,
+    pub y: BlockSideLength,
 }
 
-impl From<(MinBlockSideLength, MinBlockSideLength)> for Coordinates {
-    fn from(coordinates: (MinBlockSideLength, MinBlockSideLength)) -> Self {
+impl From<(BlockSideLength, BlockSideLength)> for Coordinates {
+    fn from(coordinates: (BlockSideLength, BlockSideLength)) -> Self {
         Self {
             x: coordinates.0,
             y: coordinates.1,
@@ -79,12 +79,12 @@ impl From<(MinBlockSideLength, MinBlockSideLength)> for Coordinates {
 /// A resolution of a canvas.
 #[derive(Decode, Encode, Default, Clone, Copy, TypeInfo, Debug, PartialEq, Eq)]
 pub struct Resolution {
-    pub width: MinBlockSideLength,
-    pub height: MinBlockSideLength,
+    pub width: BlockSideLength,
+    pub height: BlockSideLength,
 }
 
-impl From<(MinBlockSideLength, MinBlockSideLength)> for Resolution {
-    fn from(resolution: (MinBlockSideLength, MinBlockSideLength)) -> Self {
+impl From<(BlockSideLength, BlockSideLength)> for Resolution {
+    fn from(resolution: (BlockSideLength, BlockSideLength)) -> Self {
         Self {
             width: resolution.0,
             height: resolution.1,
@@ -117,12 +117,12 @@ pub struct TokenInfo {
 ///
 /// # Requierements
 /// * `owner` address mustn't be 0.
-/// * `min_block_side_length` must be more than 0.
+/// * `block_side_length` must be more than 0.
 /// * `pixel_price` mustn't be more than [`MAX_PIXEL_PRICE`].
 /// * A [width](`Resolution#structfield.width`) &
 /// [height](`Resolution#structfield.height`) (`resolution`) of a canvas must
 /// be more than 0.
-/// * Each side of `resolution` must be a multiple of `min_block_side_length`.
+/// * Each side of `resolution` must be a multiple of `block_side_length`.
 /// * `painting` length must equal a pixel count in a canvas (which can be
 /// calculated by multiplying a [width](`Resolution#structfield.width`) &
 /// [height](`Resolution#structfield.height`) from `resolution`).
@@ -134,14 +134,14 @@ pub struct InitNFTPixelboard {
     /// An address of a pixelboard owner to which minting fees and commissions
     /// on resales will be transferred.
     pub owner: ActorId,
-    /// A minimum block side length.
+    /// A block side length.
     ///
     /// To avoid a canvas clogging with one pixel NFTs, blocks are used instead
     /// of pixels to set token [`Rectangle`]s. This parameter is used to set a
-    /// minimum side length of these pixel blocks. If blocks aren't needed,
-    /// then this parameter can be set to 1, so the minimum block side length
+    /// side length of these pixel blocks. If blocks aren't needed,
+    /// then this parameter can be set to 1, so the block side length
     /// will be equal a pixel.
-    pub min_block_side_length: MinBlockSideLength,
+    pub block_side_length: BlockSideLength,
     /// A price of a free pixel. It'll be used to calculate a minting price.
     pub pixel_price: u128,
     /// A canvas (pixelboard) [width](`Resolution#structfield.width`) &
@@ -170,9 +170,9 @@ pub enum NFTPixelboardAction {
     /// * `rectangle` coordinates mustn't be mixed up or belong to wrong
     /// corners.
     /// * `rectangle` coordinates must observe a block layout. In
-    /// other words, each `rectangle` coordinate must be a multiple of a minimum
-    /// block side length in this canvas. The minimum block side length can be
-    /// obtained by [`NFTPixelboardState::MinBlockSideLength`].
+    /// other words, each `rectangle` coordinate must be a multiple of a
+    /// block side length in the canvas. The block side length can be
+    /// obtained by [`NFTPixelboardState::BlockSideLength`].
     /// * NFT `rectangle` mustn't collide with already minted one.
     /// * `painting` length must equal a pixel count in an NFT
     /// (which can be calculated by multiplying a [width](`Rectangle::width`)
@@ -208,7 +208,7 @@ pub enum NFTPixelboardAction {
     /// * An NFT must be for sale. This can be found out by
     /// [`NFTPixelboardState::TokenInfo`]. See also the documentation of
     /// [`TokenInfo#structfield.pixel_price`].
-    /// * [`msg::source()`] must have enough tokens to buy all pixels that this
+    /// * [`msg::source()`] must have enough tokens to buy all pixels that a
     /// token occupies. This can be found out by
     /// [`NFTPixelboardState::TokenInfo`]. See also the documentation of
     /// [`TokenInfo#structfield.pixel_price`].
@@ -290,13 +290,13 @@ pub enum NFTPixelboardState {
     /// Returns [`NFTPixelboardStateReply::PixelPrice`].
     PixelPrice,
 
-    /// Gets a minimum block side length.
+    /// Gets a block side length.
     ///
     /// For more info about this parameter, see
-    /// [`InitNFTPixelboard#structfield.min_block_side_length`] documentation.
+    /// [`InitNFTPixelboard#structfield.block_side_length`] documentation.
     ///
-    /// Returns [`NFTPixelboardStateReply::MinBlockSideLength`].
-    MinBlockSideLength,
+    /// Returns [`NFTPixelboardStateReply::BlockSideLength`].
+    BlockSideLength,
 
     /// Gets [`Token`] info by pixel coordinates.
     ///
@@ -336,8 +336,8 @@ pub enum NFTPixelboardStateReply {
     Resolution(Resolution),
     /// Should be returned from [`NFTPixelboardState::PixelPrice`].
     PixelPrice(u128),
-    /// Should be returned from [`NFTPixelboardState::MinBlockSideLength`].
-    MinBlockSideLength(MinBlockSideLength),
+    /// Should be returned from [`NFTPixelboardState::BlockSideLength`].
+    BlockSideLength(BlockSideLength),
     /// Should be returned from [`NFTPixelboardState::PixelInfo`].
     PixelInfo(Token),
     /// Should be returned from [`NFTPixelboardState::TokenInfo`].

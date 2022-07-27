@@ -12,7 +12,7 @@ fn initialization_failures() {
 
     let pixelboard_config = InitNFTPixelboard {
         ft_program: ft_program.actor_id(),
-        min_block_side_length: 10,
+        block_side_length: 10,
         nft_program: nft_program.actor_id(),
         owner: FOREIGN_USER.into(),
         painting: vec![0; 100],
@@ -37,8 +37,8 @@ fn initialization_failures() {
     NFTPixelboard::initialize_custom(&system, failed_pixelboard_config).failed();
 
     failed_pixelboard_config = pixelboard_config.clone();
-    failed_pixelboard_config.min_block_side_length = 0;
-    // Should fail because `min_block_side_length` must be more than 0.
+    failed_pixelboard_config.block_side_length = 0;
+    // Should fail because `block_side_length` must be more than 0.
     NFTPixelboard::initialize_custom(&system, failed_pixelboard_config).failed();
 
     failed_pixelboard_config = pixelboard_config.clone();
@@ -59,19 +59,19 @@ fn initialization_failures() {
     failed_pixelboard_config = pixelboard_config.clone();
     failed_pixelboard_config.resolution.width = 15;
     failed_pixelboard_config.painting = vec![1; 150];
-    // Should fail because each side of `resolution` must be a multiple of `min_block_side_length`.
+    // Should fail because each side of `resolution` must be a multiple of `block_side_length`.
     NFTPixelboard::initialize_custom(&system, failed_pixelboard_config).failed();
 
     failed_pixelboard_config = pixelboard_config.clone();
     failed_pixelboard_config.resolution.height = 15;
     failed_pixelboard_config.painting = vec![1; 150];
-    // Should fail because each side of `resolution` must be a multiple of `min_block_side_length`.
+    // Should fail because each side of `resolution` must be a multiple of `block_side_length`.
     NFTPixelboard::initialize_custom(&system, failed_pixelboard_config).failed();
 
     failed_pixelboard_config = pixelboard_config.clone();
     failed_pixelboard_config.resolution = (15, 15).into();
     failed_pixelboard_config.painting = vec![1; 225];
-    // Should fail because each side of `resolution` must be a multiple of `min_block_side_length`.
+    // Should fail because each side of `resolution` must be a multiple of `block_side_length`.
     NFTPixelboard::initialize_custom(&system, failed_pixelboard_config).failed();
 
     failed_pixelboard_config = pixelboard_config.clone();
@@ -104,7 +104,7 @@ fn initialization_n_meta_state() {
 
     let pixelboard_config = InitNFTPixelboard {
         ft_program: ft_program.actor_id(),
-        min_block_side_length: 1,
+        block_side_length: 1,
         nft_program: nft_program.actor_id(),
         owner: FOREIGN_USER.into(),
         painting: vec![0; 100],
@@ -125,8 +125,8 @@ fn initialization_n_meta_state() {
         .check(nft_program.actor_id());
     pixelboard_program
         .meta_state()
-        .min_block_side_length()
-        .check(pixelboard_config.min_block_side_length);
+        .block_side_length()
+        .check(pixelboard_config.block_side_length);
     pixelboard_program
         .meta_state()
         .painting()
