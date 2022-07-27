@@ -140,7 +140,7 @@ pub struct InitNFTPixelboard {
     /// of pixels to set token [`Rectangle`]s. This parameter is used to set a
     /// side length of these pixel blocks. If blocks aren't needed,
     /// then this parameter can be set to 1, so the block side length
-    /// will be equal a pixel.
+    /// will equal a pixel.
     pub block_side_length: BlockSideLength,
     /// A price of a free pixel. It'll be used to calculate a minting price.
     pub pixel_price: u128,
