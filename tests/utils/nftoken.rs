@@ -1,4 +1,4 @@
-use super::other::*;
+use super::{other::MetaStateReply, prelude::*};
 use gear_lib::non_fungible_token::{
     state::{NFTQuery, NFTQueryReply},
     token::Token,

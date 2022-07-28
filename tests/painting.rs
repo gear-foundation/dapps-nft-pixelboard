@@ -1,9 +1,9 @@
 pub mod utils;
-use utils::*;
+use utils::{prelude::*, FungibleToken, NonFungibleToken};
 
 #[test]
 fn painting_failures() {
-    let system = initialize_system();
+    let system = utils::initialize_system();
 
     let ft_program = FungibleToken::initialize(&system);
     ft_program.mint(USER[0], MAX_PIXEL_PRICE * 25);
@@ -26,7 +26,7 @@ fn painting_failures() {
 
 #[test]
 fn painting() {
-    let system = initialize_system();
+    let system = utils::initialize_system();
 
     let ft_program = FungibleToken::initialize(&system);
     ft_program.mint(FOREIGN_USER, MAX_PIXEL_PRICE * (25 + 7 + 20 + 1));
@@ -153,7 +153,7 @@ fn painting() {
         owner: FOREIGN_USER.into(),
         painting: vec![0],
         pixel_price: MAX_PIXEL_PRICE,
-        resale_commission_percentage: 100,
+        commission_percentage: 100,
         resolution: (1, 1).into(),
     };
     pixelboard_program =

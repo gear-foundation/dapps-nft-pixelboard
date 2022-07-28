@@ -1,4 +1,4 @@
-use super::other::*;
+use super::{other::Action, prelude::*};
 use core::marker::PhantomData;
 use ft_io::{FTAction, FTEvent, InitConfig as InitFT};
 use gstd::ActorId;

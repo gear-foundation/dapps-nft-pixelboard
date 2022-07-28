@@ -1,11 +1,11 @@
 use gear_lib::non_fungible_token::token::{Token as NFToken, TokenMetadata};
 
 pub mod utils;
-use utils::*;
+use utils::{prelude::*, FungibleToken, NonFungibleToken};
 
 #[test]
 fn minting_failures() {
-    let system = initialize_system();
+    let system = utils::initialize_system();
 
     let ft_program = FungibleToken::initialize(&system);
     ft_program.mint(FOREIGN_USER, MAX_PIXEL_PRICE * 36);
@@ -19,7 +19,7 @@ fn minting_failures() {
         owner: OWNER.into(),
         painting: vec![0; 100],
         pixel_price: MAX_PIXEL_PRICE,
-        resale_commission_percentage: 100,
+        commission_percentage: 100,
         resolution: (10, 10).into(),
     };
     let pixelboard_program = NFTPixelboard::initialize_custom(&system, pixelboard_config).succeed();
@@ -144,7 +144,7 @@ fn minting_failures() {
 
 #[test]
 fn minting_n_meta_state() {
-    let system = initialize_system();
+    let system = utils::initialize_system();
 
     let ft_program = FungibleToken::initialize(&system);
     ft_program.mint(FOREIGN_USER, MAX_PIXEL_PRICE * (6 + 25 + 1));

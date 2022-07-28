@@ -8,12 +8,16 @@
 
 [![Build][build_badge]][build_href]
 [![License][lic_badge]][lic_href]
+[![Docs][docs_badge]][docs_href]
 
 [build_badge]: https://github.com/gear-dapps/app/workflows/Build/badge.svg
 [build_href]: https://github.com/gear-dapps/app/actions/workflows/build.yml
 
 [lic_badge]: https://img.shields.io/badge/License-MIT-success
 [lic_href]: https://github.com/gear-dapps/app/blob/master/LICENSE
+
+[docs_badge]: https://img.shields.io/badge/docs-online-5023dd
+[docs_href]: https://dapps.gear.rs/nft_pixelboard_io/index.html
 
 ## Prebuilt Binaries
 

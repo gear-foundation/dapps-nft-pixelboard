@@ -1,9 +1,9 @@
 pub mod utils;
-use utils::*;
+use utils::{prelude::*, FungibleToken, NonFungibleToken};
 
 #[test]
 fn reselling() {
-    let system = initialize_system();
+    let system = utils::initialize_system();
 
     let ft_program = FungibleToken::initialize(&system);
     ft_program.mint(USER[0], MAX_PIXEL_PRICE * 25);
@@ -18,7 +18,7 @@ fn reselling() {
         owner: OWNER.into(),
         painting: vec![0; 100],
         pixel_price: MAX_PIXEL_PRICE,
-        resale_commission_percentage: 13,
+        commission_percentage: 13,
         resolution: (10, 10).into(),
     };
     let pixelboard_program =
@@ -50,14 +50,13 @@ fn reselling() {
     token.1.owner = USER[1].into();
     token.1.pixel_price = None;
 
-    let commision =
-        MAX_PIXEL_PRICE * 25 * pixelboard_config.resale_commission_percentage as u128 / 100;
+    let commission = MAX_PIXEL_PRICE * 25 * pixelboard_config.commission_percentage as u128 / 100;
     ft_program
         .balance(OWNER)
-        .check(MAX_PIXEL_PRICE * 25 + commision);
+        .check(MAX_PIXEL_PRICE * 25 + commission);
     ft_program
         .balance(USER[0])
-        .check(MAX_PIXEL_PRICE * 25 - commision);
+        .check(MAX_PIXEL_PRICE * 25 - commission);
     ft_program.balance(USER[1]).check(0);
     nft_program.meta_state().owner(0).check(USER[1].into());
     pixelboard_program.meta_state().token_info(0).check(token);
@@ -65,7 +64,7 @@ fn reselling() {
 
 #[test]
 fn reselling_failures() {
-    let system = initialize_system();
+    let system = utils::initialize_system();
 
     let ft_program = FungibleToken::initialize(&system);
     ft_program.mint(USER[0], MAX_PIXEL_PRICE * 25);
@@ -80,7 +79,7 @@ fn reselling_failures() {
         owner: OWNER.into(),
         painting: vec![0; 100],
         pixel_price: MAX_PIXEL_PRICE,
-        resale_commission_percentage: 13,
+        commission_percentage: 13,
         resolution: (10, 10).into(),
     };
     let pixelboard_program =
@@ -112,12 +111,11 @@ fn reselling_failures() {
     pixelboard_program.buy(USER[1], 0).failed();
 
     // But a commission should still be debited from USER[0] because USER[0] has enough tokens for it.
-    let commision =
-        MAX_PIXEL_PRICE * 25 * pixelboard_config.resale_commission_percentage as u128 / 100;
+    let commission = MAX_PIXEL_PRICE * 25 * pixelboard_config.commission_percentage as u128 / 100;
     ft_program
         .balance(USER[1])
-        .check(MAX_PIXEL_PRICE * 24 - commision);
+        .check(MAX_PIXEL_PRICE * 24 - commission);
     ft_program
         .balance(OWNER)
-        .check(MAX_PIXEL_PRICE * 25 + commision);
+        .check(MAX_PIXEL_PRICE * 25 + commission);
 }

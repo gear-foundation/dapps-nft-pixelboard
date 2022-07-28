@@ -9,3 +9,5 @@ pub use nftoken::*;
 
 mod other;
 pub use other::*;
+
+pub mod prelude;

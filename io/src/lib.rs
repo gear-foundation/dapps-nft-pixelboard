@@ -12,7 +12,7 @@ use gstd::{prelude::*, ActorId};
 /// [`BlockSideLength::MAX`]² = 2³². So the maximum price that each pixel
 /// can have is [`u128::MAX`] / [`BlockSideLength::MAX`]² = 2⁹⁶.
 ///
-/// To calculate a commission, the number can be multiplied by 100, so, to
+/// To calculate the commission, the number can be multiplied by 100, so, to
 /// avoid an overflow, the number must be divided by 100. Hence 2⁹⁶ / 100.
 pub const MAX_PIXEL_PRICE: u128 = 2u128.pow(96) / 100;
 
@@ -27,17 +27,17 @@ pub type Color = u8;
 /// Coordinates of the corners of a token rectangle on a canvas.
 #[derive(Decode, Encode, TypeInfo, PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug, Default)]
 pub struct Rectangle {
-    pub upper_left_corner: Coordinates,
-    pub lower_right_corner: Coordinates,
+    pub top_left_corner: Coordinates,
+    pub bottom_right_corner: Coordinates,
 }
 
 impl Rectangle {
     pub fn width(&self) -> BlockSideLength {
-        self.lower_right_corner.x - self.upper_left_corner.x
+        self.bottom_right_corner.x - self.top_left_corner.x
     }
 
     pub fn height(&self) -> BlockSideLength {
-        self.lower_right_corner.y - self.upper_left_corner.y
+        self.bottom_right_corner.y - self.top_left_corner.y
     }
 }
 
@@ -54,8 +54,8 @@ impl
         ),
     ) -> Self {
         Self {
-            upper_left_corner: rectangle.0.into(),
-            lower_right_corner: rectangle.1.into(),
+            top_left_corner: rectangle.0.into(),
+            bottom_right_corner: rectangle.1.into(),
         }
     }
 }
@@ -68,11 +68,8 @@ pub struct Coordinates {
 }
 
 impl From<(BlockSideLength, BlockSideLength)> for Coordinates {
-    fn from(coordinates: (BlockSideLength, BlockSideLength)) -> Self {
-        Self {
-            x: coordinates.0,
-            y: coordinates.1,
-        }
+    fn from((x, y): (BlockSideLength, BlockSideLength)) -> Self {
+        Self { x, y }
     }
 }
 
@@ -84,11 +81,8 @@ pub struct Resolution {
 }
 
 impl From<(BlockSideLength, BlockSideLength)> for Resolution {
-    fn from(resolution: (BlockSideLength, BlockSideLength)) -> Self {
-        Self {
-            width: resolution.0,
-            height: resolution.1,
-        }
+    fn from((width, height): (BlockSideLength, BlockSideLength)) -> Self {
+        Self { width, height }
     }
 }
 
@@ -126,7 +120,7 @@ pub struct TokenInfo {
 /// * `painting` length must equal a pixel count in a canvas (which can be
 /// calculated by multiplying a [width](`Resolution#structfield.width`) &
 /// [height](`Resolution#structfield.height`) from `resolution`).
-/// * `resale_commission_percentage` mustn't be more than 100.
+/// * `commission_percentage` mustn't be more than 100.
 /// * `ft_program` address mustn't be 0.
 /// * `nft_program` address mustn't be 0.
 #[derive(Decode, Encode, TypeInfo, Clone)]
@@ -148,7 +142,7 @@ pub struct InitNFTPixelboard {
     /// [height](`Resolution#structfield.height`).
     pub resolution: Resolution,
     /// A commission percentage that'll be included in each token resale.
-    pub resale_commission_percentage: u8,
+    pub commission_percentage: u8,
     /// A painting that'll be displayed on the free territory of a pixelboard.
     pub painting: Vec<Color>,
 
@@ -199,9 +193,9 @@ pub enum NFTPixelboardAction {
     ///
     /// Transfers a purchased NFT from a pixelboard to [`msg::source()`].
     ///
-    /// **Note:** If [`msg::source()`] has enough tokens to pay a commission
-    /// but not the entire token, then the commission will still be withdrawn
-    /// from its account.
+    /// **Note:** If [`msg::source()`] has enough tokens to pay a resale
+    /// commission but not the entire token, then the commission will still be
+    /// withdrawn from its account.
     ///
     /// # Requirements
     /// * An NFT must be minted on a pixelboard.

@@ -1,13 +1,7 @@
-pub const FOREIGN_USER: u64 = 12345;
-pub const OWNER: u64 = 54321;
-pub const USER: [u64; 2] = [3746287346, 13856289765];
-pub use gstd::prelude::*;
-pub use nft_pixelboard_io::*;
-
-use core::fmt::Debug;
+use super::prelude::*;
+use core::{fmt::Debug, marker::PhantomData};
 use gstd::ActorId;
 use gtest::{Log, Program as InnerProgram, RunResult, System};
-use std::marker::PhantomData;
 
 pub fn initialize_system() -> System {
     let system = System::new();

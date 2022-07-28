@@ -1,4 +1,7 @@
-use super::other::*;
+use super::{
+    other::{Action, MetaStateReply},
+    prelude::*,
+};
 use core::marker::PhantomData;
 use gear_lib::non_fungible_token::token::TokenMetadata;
 use gstd::ActorId;
@@ -27,7 +30,7 @@ impl<'a> NFTPixelboard<'a> {
                 owner: OWNER.into(),
                 painting: vec![0; 100],
                 pixel_price: MAX_PIXEL_PRICE,
-                resale_commission_percentage: 100,
+                commission_percentage: 100,
                 resolution: (10, 10).into(),
             },
         )
@@ -208,7 +211,7 @@ impl NFTPixelboardMetaState<'_> {
         }
     }
 
-    pub fn resale_commission_percentage(self) -> MetaStateReply<u8> {
+    pub fn commission_percentage(self) -> MetaStateReply<u8> {
         if let NFTPixelboardStateReply::CommissionPercentage(reply) = self
             .0
             .meta_state(NFTPixelboardState::CommissionPercentage)

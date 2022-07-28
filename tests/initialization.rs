@@ -1,11 +1,11 @@
 use gstd::ActorId;
 
 pub mod utils;
-use utils::*;
+use utils::{prelude::*, FungibleToken, NonFungibleToken};
 
 #[test]
 fn initialization_failures() {
-    let system = initialize_system();
+    let system = utils::initialize_system();
 
     let ft_program = FungibleToken::initialize(&system);
     let nft_program = NonFungibleToken::initialize(&system);
@@ -17,7 +17,7 @@ fn initialization_failures() {
         owner: FOREIGN_USER.into(),
         painting: vec![0; 100],
         pixel_price: MAX_PIXEL_PRICE,
-        resale_commission_percentage: 100,
+        commission_percentage: 100,
         resolution: (10, 10).into(),
     };
 
@@ -75,8 +75,8 @@ fn initialization_failures() {
     NFTPixelboard::initialize_custom(&system, failed_pixelboard_config).failed();
 
     failed_pixelboard_config = pixelboard_config.clone();
-    failed_pixelboard_config.resale_commission_percentage = 101;
-    // Should fail because `resale_commission_percentage` mustn't be more than 100.
+    failed_pixelboard_config.commission_percentage = 101;
+    // Should fail because `commission_percentage` mustn't be more than 100.
     NFTPixelboard::initialize_custom(&system, failed_pixelboard_config).failed();
 
     failed_pixelboard_config = pixelboard_config.clone();
@@ -97,7 +97,7 @@ fn initialization_failures() {
 
 #[test]
 fn initialization_n_meta_state() {
-    let system = initialize_system();
+    let system = utils::initialize_system();
 
     let ft_program = FungibleToken::initialize(&system);
     let nft_program = NonFungibleToken::initialize(&system);
@@ -109,7 +109,7 @@ fn initialization_n_meta_state() {
         owner: FOREIGN_USER.into(),
         painting: vec![0; 100],
         pixel_price: MAX_PIXEL_PRICE,
-        resale_commission_percentage: 100,
+        commission_percentage: 100,
         resolution: (10, 10).into(),
     };
     let pixelboard_program =
@@ -137,8 +137,8 @@ fn initialization_n_meta_state() {
         .check(pixelboard_config.pixel_price);
     pixelboard_program
         .meta_state()
-        .resale_commission_percentage()
-        .check(pixelboard_config.resale_commission_percentage);
+        .commission_percentage()
+        .check(pixelboard_config.commission_percentage);
     pixelboard_program
         .meta_state()
         .resolution()
