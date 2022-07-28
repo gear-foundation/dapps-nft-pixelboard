@@ -201,12 +201,12 @@ fn minting_n_meta_state() {
         approved_account_ids: Default::default(),
     });
 
-    // The NFT center.
+    // NFT center
     pixelboard_program
         .meta_state()
         .pixel_info((5, 5).into())
         .check(token);
-    // The NFT corners.
+    // NFT corners
     pixelboard_program
         .meta_state()
         .pixel_info((3, 3).into())
@@ -223,7 +223,7 @@ fn minting_n_meta_state() {
         .meta_state()
         .pixel_info((7, 3).into())
         .check(token);
-    // Pixels outside of the token.
+    // Pixels outside of the token
     pixelboard_program
         .meta_state()
         .pixel_info((2, 2).into())
@@ -240,12 +240,12 @@ fn minting_n_meta_state() {
         .meta_state()
         .pixel_info((8, 2).into())
         .check(Token::default());
-    // A pixel between NFTs.
+    // Pixel between NFTs
     pixelboard_program
         .meta_state()
         .pixel_info((2, 5).into())
         .check(Token::default());
-    // Pixels on the edge/outside of the canvas.
+    // Pixels on the edge/outside of the canvas
     pixelboard_program
         .meta_state()
         .pixel_info((0, 0).into())
@@ -261,7 +261,7 @@ fn minting_n_meta_state() {
 
     token.0 = ((9, 9), (10, 10)).into();
     token.1.token_id = 2.into();
-    // Minting a one pixel token.
+    // Minting a one pixel token
     pixelboard_program
         .mint(FOREIGN_USER, vec![0], token.0)
         .check(2);
@@ -276,7 +276,7 @@ fn minting_n_meta_state() {
         .pixel_info((9, 9).into())
         .check(token);
 
-    // Pixels outside of the one pixel token.
+    // Pixels outside of the one pixel token
     pixelboard_program
         .meta_state()
         .pixel_info((8, 8).into())

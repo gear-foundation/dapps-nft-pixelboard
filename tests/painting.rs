@@ -145,7 +145,7 @@ fn painting() {
 
     ft_program.mint(FOREIGN_USER, MAX_PIXEL_PRICE * (1 + 10 + 10));
 
-    // A one pixel canvas.
+    // One pixel canvas
     let mut pixelboard_config = InitNFTPixelboard {
         ft_program: ft_program.actor_id(),
         block_side_length: 1,
@@ -166,7 +166,7 @@ fn painting() {
     pixelboard_program.paint(FOREIGN_USER, 4, vec![4]).check(4);
     pixelboard_program.meta_state().painting().check(vec![4]);
 
-    // A one column canvas.
+    // One column canvas
     pixelboard_config.resolution = (1, 10).into();
     pixelboard_config.painting = vec![0; 10];
     pixelboard_program =
@@ -184,7 +184,7 @@ fn painting() {
         .painting()
         .check(vec![0, 0, 1, 2, 3, 0, 0, 0, 0, 0]);
 
-    // A one row canvas.
+    // One row canvas
     pixelboard_config.resolution = (10, 1).into();
     pixelboard_program = NFTPixelboard::initialize_custom(&system, pixelboard_config).succeed();
 
