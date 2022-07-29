@@ -199,20 +199,25 @@ impl NFTPixelboard {
         utils::reply(NFTPixelboardEvent::Bought(token_id));
     }
 
-    async fn put_up_for_sale(&mut self, token_id: TokenId, pixel_price: u128) {
+    async fn change_sale_state(&mut self, token_id: TokenId, pixel_price: Option<u128>) {
         let (_, token) = get_mut_token_by_id(
             &self.rectangles_by_token_ids,
             &mut self.tokens_by_rectangles,
             token_id,
         );
         assert_eq!(token.owner, msg::source());
-        assert!(token.pixel_price.is_none(), "NFT is already for sale");
 
-        check_pixel_price(pixel_price);
-        token.pixel_price = Some(pixel_price);
-        utils::transfer_nft(self.nft_program, exec::program_id(), token_id).await;
+        if let Some(price) = pixel_price {
+            check_pixel_price(price);
+            if token.pixel_price.is_none() {
+                utils::transfer_nft(self.nft_program, exec::program_id(), token_id).await;
+            }
+        } else if token.pixel_price.is_some() {
+            utils::transfer_nft(self.nft_program, msg::source(), token_id).await;
+        }
+        token.pixel_price = pixel_price;
 
-        utils::reply(NFTPixelboardEvent::ForSale(token_id));
+        utils::reply(NFTPixelboardEvent::SaleStateChanged(token_id));
     }
 
     fn paint(&mut self, token_id: TokenId, painting: Vec<Color>) {
@@ -309,10 +314,10 @@ async fn main() {
             painting,
         } => program.mint(rectangle, token_metadata, painting).await,
         NFTPixelboardAction::Buy(token_id) => program.buy(token_id).await,
-        NFTPixelboardAction::PutUpForSale {
+        NFTPixelboardAction::ChangeSaleState {
             token_id,
             pixel_price,
-        } => program.put_up_for_sale(token_id, pixel_price).await,
+        } => program.change_sale_state(token_id, pixel_price).await,
         NFTPixelboardAction::Paint { token_id, painting } => program.paint(token_id, painting),
     }
 }

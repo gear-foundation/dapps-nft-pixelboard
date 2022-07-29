@@ -109,7 +109,7 @@ pub struct TokenInfo {
 
 /// Initializes the NFT pixelboard program.
 ///
-/// # Requierements
+/// # Requirements
 /// * `owner` address mustn't be 0.
 /// * `block_side_length` must be more than 0.
 /// * `pixel_price` mustn't be more than [`MAX_PIXEL_PRICE`].
@@ -136,7 +136,7 @@ pub struct InitNFTPixelboard {
     /// then this parameter can be set to 1, so the block side length
     /// will equal a pixel.
     pub block_side_length: BlockSideLength,
-    /// A price of a free pixel. It'll be used to calculate a minting price.
+    /// The price of a free pixel. It'll be used to calculate a minting price.
     pub pixel_price: u128,
     /// A canvas (pixelboard) [width](`Resolution#structfield.width`) &
     /// [height](`Resolution#structfield.height`).
@@ -173,8 +173,8 @@ pub enum NFTPixelboardAction {
     /// & [height](`Rectangle::height`) from `rectangle`).
     /// * [`msg::source()`] must have enough tokens to buy all free pixels that
     /// `rectangle` will occupy. An enough number of tokens can be calculated by
-    /// multiplying `rectangle` area and a price of a free pixel. The area can
-    /// be calculated by multiplying a [width](`Rectangle::width`) &
+    /// multiplying a `rectangle` area and the price of a free pixel. The area
+    /// can be calculated by multiplying a [width](`Rectangle::width`) &
     /// [height](`Rectangle::height`) from `rectangle`. The price of a free
     /// pixel can be obtained by [`NFTPixelboardState::PixelPrice`].
     ///
@@ -212,9 +212,18 @@ pub enum NFTPixelboardAction {
     /// [`msg::source()`]: gstd::msg::source
     Buy(TokenId),
 
-    /// Puts up for sale an NFT minted on a pixelboard.
+    /// Changes a sale state of an NFT minted on a pixelboard.
     ///
-    /// Transfers a minted NFT to a pixelboard program.
+    /// There are 3 options of a sale state change:
+    /// * Putting up for sale\
+    /// If an NFT is **not** for sale, then assigning `pixel_price` to [`Some`]
+    /// price will transfer it to a pixelboard program & put it up for sale.
+    /// * Updating a pixel price\
+    /// If an NFT is for sale, then assigning `pixel_price` to [`Some`] price
+    /// will update its pixel price.
+    /// * Removing from sale \
+    /// Assigning the `pixel_price` to [`None`] will transfer an NFT back to its
+    /// owner & remove an NFT from sale.
     ///
     /// **Note:** A commission is included in each token resale, so a seller
     /// will receive not all tokens but tokens with a commission deduction. A
@@ -224,16 +233,15 @@ pub enum NFTPixelboardAction {
     /// # Requirements
     /// * An NFT must be minted on a pixelboard.
     /// * [`msg::source()`](gstd::msg::source) must be the owner of an NFT.
-    /// * An NFT mustn't be for sale.
     /// * `pixel_price` mustn't be more than [`MAX_PIXEL_PRICE`].
     ///
-    /// On success, returns [`NFTPixelboardEvent::ForSale`].
-    PutUpForSale {
+    /// On success, returns [`NFTPixelboardEvent::SaleStateChanged`].
+    ChangeSaleState {
         token_id: TokenId,
         /// A price of each pixel that an NFT occupies. To calculate a price of
         /// the entire NFT, see the documentation of
         /// [`TokenInfo#structfield.pixel_price`].
-        pixel_price: u128,
+        pixel_price: Option<u128>,
     },
 
     /// Paints an NFT minted on a pixelboard.
@@ -260,8 +268,8 @@ pub enum NFTPixelboardEvent {
     Minted(TokenId),
     /// Should be returned from [`NFTPixelboardAction::Buy`].
     Bought(TokenId),
-    /// Should be returned from [`NFTPixelboardAction::PutUpForSale`].
-    ForSale(TokenId),
+    /// Should be returned from [`NFTPixelboardAction::ChangeSaleState`].
+    SaleStateChanged(TokenId),
     /// Should be returned from [`NFTPixelboardAction::Paint`].
     Painted(TokenId),
 }
@@ -279,7 +287,7 @@ pub enum NFTPixelboardState {
     /// Returns [`NFTPixelboardStateReply::Resolution`].
     Resolution,
 
-    /// Gets a price of a free pixel.
+    /// Gets the price of a free pixel.
     ///
     /// Returns [`NFTPixelboardStateReply::PixelPrice`].
     PixelPrice,

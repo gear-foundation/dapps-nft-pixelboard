@@ -78,21 +78,21 @@ impl<'a> NFTPixelboard<'a> {
         )
     }
 
-    pub fn put_up_for_sale(
+    pub fn change_sale_state(
         &self,
         from: u64,
         token_id: u128,
-        pixel_price: u128,
+        pixel_price: Option<u128>,
     ) -> Action<impl FnOnce(u128) -> NFTPixelboardEvent, u128, NFTPixelboardEvent> {
         Action(
             self.0.send(
                 from,
-                NFTPixelboardAction::PutUpForSale {
+                NFTPixelboardAction::ChangeSaleState {
                     token_id: token_id.into(),
                     pixel_price,
                 },
             ),
-            |token_id| NFTPixelboardEvent::ForSale(token_id.into()),
+            |token_id| NFTPixelboardEvent::SaleStateChanged(token_id.into()),
             PhantomData,
         )
     }

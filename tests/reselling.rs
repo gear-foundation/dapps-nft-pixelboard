@@ -7,7 +7,7 @@ fn reselling() {
 
     let ft_program = FungibleToken::initialize(&system);
     ft_program.mint(USER[0], MAX_PIXEL_PRICE * 25);
-    ft_program.mint(USER[1], MAX_PIXEL_PRICE * 25);
+    ft_program.mint(USER[1], 25);
 
     let nft_program = NonFungibleToken::initialize(&system);
 
@@ -36,9 +36,34 @@ fn reselling() {
     pixelboard_program
         .mint(USER[0], vec![0; 25], token.0)
         .check(0);
+    // Putting the token up for sale
     pixelboard_program
-        .put_up_for_sale(USER[0], 0, MAX_PIXEL_PRICE)
+        .change_sale_state(USER[0], 0, Some(MAX_PIXEL_PRICE))
         .check(0);
+
+    pixelboard_program.meta_state().token_info(0).check(token);
+    nft_program
+        .meta_state()
+        .owner(0)
+        .check(pixelboard_program.actor_id());
+
+    // Removing the token from sale
+    pixelboard_program
+        .change_sale_state(USER[0], 0, None)
+        .check(0);
+    token.1.pixel_price = None;
+
+    pixelboard_program.meta_state().token_info(0).check(token);
+    nft_program.meta_state().owner(0).check(USER[0].into());
+
+    pixelboard_program
+        .change_sale_state(USER[0], 0, Some(0))
+        .check(0);
+    // Updating a token pixel price
+    pixelboard_program
+        .change_sale_state(USER[0], 0, Some(1))
+        .check(0);
+    token.1.pixel_price = Some(1);
 
     pixelboard_program.meta_state().token_info(0).check(token);
     nft_program
@@ -50,13 +75,11 @@ fn reselling() {
     token.1.owner = USER[1].into();
     token.1.pixel_price = None;
 
-    let commission = MAX_PIXEL_PRICE * 25 * pixelboard_config.commission_percentage as u128 / 100;
+    let commission = 25 * pixelboard_config.commission_percentage as u128 / 100;
     ft_program
         .balance(OWNER)
         .check(MAX_PIXEL_PRICE * 25 + commission);
-    ft_program
-        .balance(USER[0])
-        .check(MAX_PIXEL_PRICE * 25 - commission);
+    ft_program.balance(USER[0]).check(25 - commission);
     ft_program.balance(USER[1]).check(0);
     nft_program.meta_state().owner(0).check(USER[1].into());
     pixelboard_program.meta_state().token_info(0).check(token);
@@ -90,23 +113,19 @@ fn reselling_failures() {
         .check(0);
     // Should fail because FOREIGN_USER isn't the owner of the token.
     pixelboard_program
-        .put_up_for_sale(FOREIGN_USER, 0, MAX_PIXEL_PRICE)
+        .change_sale_state(FOREIGN_USER, 0, Some(MAX_PIXEL_PRICE))
         .failed();
     // Should fail because `pixel_price` mustn't be more than `MAX_PIXEL_PRICE`.
     pixelboard_program
-        .put_up_for_sale(USER[0], 0, MAX_PIXEL_PRICE + 1)
+        .change_sale_state(USER[0], 0, Some(MAX_PIXEL_PRICE + 1))
         .failed();
     // Should fail because the NFT isn't for sale.
     pixelboard_program.buy(USER[1], 0).failed();
 
     pixelboard_program
-        .put_up_for_sale(USER[0], 0, MAX_PIXEL_PRICE)
+        .change_sale_state(USER[0], 0, Some(MAX_PIXEL_PRICE))
         .check(0);
 
-    // Should fail because the NFT is already for sale.
-    pixelboard_program
-        .put_up_for_sale(USER[0], 0, MAX_PIXEL_PRICE)
-        .failed();
     // Should fail because USER[0] doesn't have enough tokens to buy this NFT.
     pixelboard_program.buy(USER[1], 0).failed();
 
