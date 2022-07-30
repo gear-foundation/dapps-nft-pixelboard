@@ -221,7 +221,7 @@ pub enum NFTPixelboardAction {
     /// * Updating a pixel price\
     /// If an NFT is for sale, then assigning `pixel_price` to [`Some`] price
     /// will update its pixel price.
-    /// * Removing from sale \
+    /// * Removing from sale\
     /// Assigning the `pixel_price` to [`None`] will transfer an NFT back to its
     /// owner & remove an NFT from sale.
     ///
