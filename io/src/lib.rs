@@ -110,7 +110,7 @@ pub struct TokenInfo {
 /// Initializes the NFT pixelboard program.
 ///
 /// # Requirements
-/// * `owner` address mustn't be 0.
+/// * `owner` address mustn't be [`ActorId::zero()`].
 /// * `block_side_length` must be more than 0.
 /// * `pixel_price` mustn't be more than [`MAX_PIXEL_PRICE`].
 /// * A [width](`Resolution#structfield.width`) &
@@ -121,8 +121,8 @@ pub struct TokenInfo {
 /// calculated by multiplying a [width](`Resolution#structfield.width`) &
 /// [height](`Resolution#structfield.height`) from `resolution`).
 /// * `commission_percentage` mustn't be more than 100.
-/// * `ft_program` address mustn't be 0.
-/// * `nft_program` address mustn't be 0.
+/// * `ft_program` address mustn't be [`ActorId::zero()`].
+/// * `nft_program` address mustn't be [`ActorId::zero()`].
 #[derive(Decode, Encode, TypeInfo, Clone)]
 pub struct InitNFTPixelboard {
     /// An address of a pixelboard owner to which minting fees and commissions
@@ -275,6 +275,8 @@ pub enum NFTPixelboardEvent {
 }
 
 /// Queries a program state.
+///
+/// On failure, returns a [`Default`] value.
 #[derive(Decode, Encode, TypeInfo)]
 pub enum NFTPixelboardStateQuery {
     /// Gets a painting from an entire canvas of a pixelboard.
