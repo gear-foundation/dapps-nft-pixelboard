@@ -148,8 +148,10 @@ pub struct NFTPixelboardMetaState<'a>(&'a InnerProgram<'a>);
 
 impl NFTPixelboardMetaState<'_> {
     pub fn ft_program(self) -> MetaStateReply<ActorId> {
-        if let NFTPixelboardStateReply::FTProgram(reply) =
-            self.0.meta_state(NFTPixelboardState::FTProgram).unwrap()
+        if let NFTPixelboardStateReply::FTProgram(reply) = self
+            .0
+            .meta_state(NFTPixelboardStateQuery::FTProgram)
+            .unwrap()
         {
             MetaStateReply(reply)
         } else {
@@ -158,8 +160,10 @@ impl NFTPixelboardMetaState<'_> {
     }
 
     pub fn nft_program(self) -> MetaStateReply<ActorId> {
-        if let NFTPixelboardStateReply::NFTProgram(reply) =
-            self.0.meta_state(NFTPixelboardState::NFTProgram).unwrap()
+        if let NFTPixelboardStateReply::NFTProgram(reply) = self
+            .0
+            .meta_state(NFTPixelboardStateQuery::NFTProgram)
+            .unwrap()
         {
             MetaStateReply(reply)
         } else {
@@ -170,7 +174,7 @@ impl NFTPixelboardMetaState<'_> {
     pub fn block_side_length(self) -> MetaStateReply<BlockSideLength> {
         if let NFTPixelboardStateReply::BlockSideLength(reply) = self
             .0
-            .meta_state(NFTPixelboardState::BlockSideLength)
+            .meta_state(NFTPixelboardStateQuery::BlockSideLength)
             .unwrap()
         {
             MetaStateReply(reply)
@@ -180,8 +184,10 @@ impl NFTPixelboardMetaState<'_> {
     }
 
     pub fn painting(self) -> MetaStateReply<Vec<Color>> {
-        if let NFTPixelboardStateReply::Painting(reply) =
-            self.0.meta_state(NFTPixelboardState::Painting).unwrap()
+        if let NFTPixelboardStateReply::Painting(reply) = self
+            .0
+            .meta_state(NFTPixelboardStateQuery::Painting)
+            .unwrap()
         {
             MetaStateReply(reply)
         } else {
@@ -192,7 +198,7 @@ impl NFTPixelboardMetaState<'_> {
     pub fn pixel_info(self, coordinates: Coordinates) -> MetaStateReply<Token> {
         if let NFTPixelboardStateReply::PixelInfo(reply) = self
             .0
-            .meta_state(NFTPixelboardState::PixelInfo(coordinates))
+            .meta_state(NFTPixelboardStateQuery::PixelInfo(coordinates))
             .unwrap()
         {
             MetaStateReply(reply)
@@ -202,8 +208,10 @@ impl NFTPixelboardMetaState<'_> {
     }
 
     pub fn pixel_price(self) -> MetaStateReply<u128> {
-        if let NFTPixelboardStateReply::PixelPrice(reply) =
-            self.0.meta_state(NFTPixelboardState::PixelPrice).unwrap()
+        if let NFTPixelboardStateReply::PixelPrice(reply) = self
+            .0
+            .meta_state(NFTPixelboardStateQuery::PixelPrice)
+            .unwrap()
         {
             MetaStateReply(reply)
         } else {
@@ -214,7 +222,7 @@ impl NFTPixelboardMetaState<'_> {
     pub fn commission_percentage(self) -> MetaStateReply<u8> {
         if let NFTPixelboardStateReply::CommissionPercentage(reply) = self
             .0
-            .meta_state(NFTPixelboardState::CommissionPercentage)
+            .meta_state(NFTPixelboardStateQuery::CommissionPercentage)
             .unwrap()
         {
             MetaStateReply(reply)
@@ -224,8 +232,10 @@ impl NFTPixelboardMetaState<'_> {
     }
 
     pub fn resolution(self) -> MetaStateReply<Resolution> {
-        if let NFTPixelboardStateReply::Resolution(reply) =
-            self.0.meta_state(NFTPixelboardState::Resolution).unwrap()
+        if let NFTPixelboardStateReply::Resolution(reply) = self
+            .0
+            .meta_state(NFTPixelboardStateQuery::Resolution)
+            .unwrap()
         {
             MetaStateReply(reply)
         } else {
@@ -236,7 +246,7 @@ impl NFTPixelboardMetaState<'_> {
     pub fn token_info(self, token_id: u128) -> MetaStateReply<Token> {
         if let NFTPixelboardStateReply::TokenInfo(reply) = self
             .0
-            .meta_state(NFTPixelboardState::TokenInfo(token_id.into()))
+            .meta_state(NFTPixelboardStateQuery::TokenInfo(token_id.into()))
             .unwrap()
         {
             MetaStateReply(reply)

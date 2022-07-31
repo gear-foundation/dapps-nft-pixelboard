@@ -324,19 +324,26 @@ async fn main() {
 
 #[no_mangle]
 extern "C" fn meta_state() -> *mut [i32; 2] {
-    let state: NFTPixelboardState = msg::load().expect("Unable to decode `NFTPixelboardState`");
+    let state: NFTPixelboardStateQuery =
+        msg::load().expect("Unable to decode `NFTPixelboardStateQuery`");
     let program = unsafe { PROGRAM.get_or_insert(Default::default()) };
     let encoded = match state {
-        NFTPixelboardState::Painting => NFTPixelboardStateReply::Painting(program.painting.clone()),
-        NFTPixelboardState::Resolution => NFTPixelboardStateReply::Resolution(program.resolution),
-        NFTPixelboardState::PixelPrice => NFTPixelboardStateReply::PixelPrice(program.pixel_price),
-        NFTPixelboardState::BlockSideLength => {
+        NFTPixelboardStateQuery::Painting => {
+            NFTPixelboardStateReply::Painting(program.painting.clone())
+        }
+        NFTPixelboardStateQuery::Resolution => {
+            NFTPixelboardStateReply::Resolution(program.resolution)
+        }
+        NFTPixelboardStateQuery::PixelPrice => {
+            NFTPixelboardStateReply::PixelPrice(program.pixel_price)
+        }
+        NFTPixelboardStateQuery::BlockSideLength => {
             NFTPixelboardStateReply::BlockSideLength(program.block_side_length)
         }
-        NFTPixelboardState::CommissionPercentage => {
+        NFTPixelboardStateQuery::CommissionPercentage => {
             NFTPixelboardStateReply::CommissionPercentage(program.commission_percentage)
         }
-        NFTPixelboardState::PixelInfo(coordinates) => {
+        NFTPixelboardStateQuery::PixelInfo(coordinates) => {
             let mut token = Default::default();
 
             if coordinates.x < program.resolution.width && coordinates.y < program.resolution.height
@@ -360,7 +367,7 @@ extern "C" fn meta_state() -> *mut [i32; 2] {
 
             NFTPixelboardStateReply::PixelInfo(token)
         }
-        NFTPixelboardState::TokenInfo(token_id) => {
+        NFTPixelboardStateQuery::TokenInfo(token_id) => {
             let mut token = Default::default();
 
             if let Some(rectangle) = program.rectangles_by_token_ids.get(&token_id) {
@@ -371,8 +378,12 @@ extern "C" fn meta_state() -> *mut [i32; 2] {
 
             NFTPixelboardStateReply::TokenInfo(token)
         }
-        NFTPixelboardState::FTProgram => NFTPixelboardStateReply::FTProgram(program.ft_program),
-        NFTPixelboardState::NFTProgram => NFTPixelboardStateReply::NFTProgram(program.nft_program),
+        NFTPixelboardStateQuery::FTProgram => {
+            NFTPixelboardStateReply::FTProgram(program.ft_program)
+        }
+        NFTPixelboardStateQuery::NFTProgram => {
+            NFTPixelboardStateReply::NFTProgram(program.nft_program)
+        }
     }
     .encode();
     gstd::util::to_leak_ptr(encoded)
@@ -386,6 +397,6 @@ gstd::metadata! {
         input: NFTPixelboardAction,
         output: NFTPixelboardEvent,
     state:
-        input: NFTPixelboardState,
+        input: NFTPixelboardStateQuery,
         output: NFTPixelboardStateReply,
 }

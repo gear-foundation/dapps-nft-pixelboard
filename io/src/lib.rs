@@ -102,7 +102,7 @@ pub struct TokenInfo {
     /// and multiplied by `pixel_price`. The area can be calculated by
     /// multiplying a [width](`Rectangle::width`) &
     /// [height](`Rectangle::height`) from token [`Rectangle`]. Token
-    /// [`Rectangle`] can be obtained by [`NFTPixelboardState::TokenInfo`]
+    /// [`Rectangle`] can be obtained by [`NFTPixelboardStateQuery::TokenInfo`]
     /// using `token_id` from this struct.
     pub pixel_price: Option<u128>,
 }
@@ -166,7 +166,7 @@ pub enum NFTPixelboardAction {
     /// * `rectangle` coordinates must observe a block layout. In
     /// other words, each `rectangle` coordinate must be a multiple of a
     /// block side length in the canvas. The block side length can be
-    /// obtained by [`NFTPixelboardState::BlockSideLength`].
+    /// obtained by [`NFTPixelboardStateQuery::BlockSideLength`].
     /// * NFT `rectangle` mustn't collide with already minted one.
     /// * `painting` length must equal a pixel count in an NFT
     /// (which can be calculated by multiplying a [width](`Rectangle::width`)
@@ -176,7 +176,7 @@ pub enum NFTPixelboardAction {
     /// multiplying a `rectangle` area and the price of a free pixel. The area
     /// can be calculated by multiplying a [width](`Rectangle::width`) &
     /// [height](`Rectangle::height`) from `rectangle`. The price of a free
-    /// pixel can be obtained by [`NFTPixelboardState::PixelPrice`].
+    /// pixel can be obtained by [`NFTPixelboardStateQuery::PixelPrice`].
     ///
     /// On success, returns [`NFTPixelboardEvent::Minted`].
     ///
@@ -200,11 +200,11 @@ pub enum NFTPixelboardAction {
     /// # Requirements
     /// * An NFT must be minted on a pixelboard.
     /// * An NFT must be for sale. This can be found out by
-    /// [`NFTPixelboardState::TokenInfo`]. See also the documentation of
+    /// [`NFTPixelboardStateQuery::TokenInfo`]. See also the documentation of
     /// [`TokenInfo#structfield.pixel_price`].
     /// * [`msg::source()`] must have enough tokens to buy all pixels that a
     /// token occupies. This can be found out by
-    /// [`NFTPixelboardState::TokenInfo`]. See also the documentation of
+    /// [`NFTPixelboardStateQuery::TokenInfo`]. See also the documentation of
     /// [`TokenInfo#structfield.pixel_price`].
     ///
     /// On success, returns [`NFTPixelboardEvent::Bought`].
@@ -228,7 +228,7 @@ pub enum NFTPixelboardAction {
     /// **Note:** A commission is included in each token resale, so a seller
     /// will receive not all tokens but tokens with a commission deduction. A
     /// commission percentage can be obtained by
-    /// [`NFTPixelboardState::CommissionPercentage`].
+    /// [`NFTPixelboardStateQuery::CommissionPercentage`].
     ///
     /// # Requirements
     /// * An NFT must be minted on a pixelboard.
@@ -252,7 +252,7 @@ pub enum NFTPixelboardAction {
     /// * `painting` length must equal a pixel count in an NFT. The count can be
     /// calculated by multiplying a [width](`Rectangle::width`) &
     /// [height](`Rectangle::height`) from a rectangle of the NFT. The NFT
-    /// rectangle can be obtained by [`NFTPixelboardState::TokenInfo`].
+    /// rectangle can be obtained by [`NFTPixelboardStateQuery::TokenInfo`].
     ///
     /// On success, returns [`NFTPixelboardEvent::Painted`].
     Paint {
@@ -274,9 +274,9 @@ pub enum NFTPixelboardEvent {
     Painted(TokenId),
 }
 
-/// Requests a program state.
+/// Queries a program state.
 #[derive(Decode, Encode, TypeInfo)]
-pub enum NFTPixelboardState {
+pub enum NFTPixelboardStateQuery {
     /// Gets a painting from an entire canvas of a pixelboard.
     ///
     /// Returns [`NFTPixelboardStateReply::Painting`].
@@ -329,25 +329,26 @@ pub enum NFTPixelboardState {
     NFTProgram,
 }
 
-/// A reply for requested [`NFTPixelboardState`].
+/// A reply for queried [`NFTPixelboardStateQuery`].
 #[derive(Decode, Encode, TypeInfo)]
 pub enum NFTPixelboardStateReply {
-    /// Should be returned from [`NFTPixelboardState::Painting`].
+    /// Should be returned from [`NFTPixelboardStateQuery::Painting`].
     Painting(Vec<Color>),
-    /// Should be returned from [`NFTPixelboardState::Resolution`].
+    /// Should be returned from [`NFTPixelboardStateQuery::Resolution`].
     Resolution(Resolution),
-    /// Should be returned from [`NFTPixelboardState::PixelPrice`].
+    /// Should be returned from [`NFTPixelboardStateQuery::PixelPrice`].
     PixelPrice(u128),
-    /// Should be returned from [`NFTPixelboardState::BlockSideLength`].
+    /// Should be returned from [`NFTPixelboardStateQuery::BlockSideLength`].
     BlockSideLength(BlockSideLength),
-    /// Should be returned from [`NFTPixelboardState::PixelInfo`].
+    /// Should be returned from [`NFTPixelboardStateQuery::PixelInfo`].
     PixelInfo(Token),
-    /// Should be returned from [`NFTPixelboardState::TokenInfo`].
+    /// Should be returned from [`NFTPixelboardStateQuery::TokenInfo`].
     TokenInfo(Token),
-    /// Should be returned from [`NFTPixelboardState::CommissionPercentage`].
+    /// Should be returned from
+    /// [`NFTPixelboardStateQuery::CommissionPercentage`].
     CommissionPercentage(u8),
-    /// Should be returned from [`NFTPixelboardState::FTProgram`].
+    /// Should be returned from [`NFTPixelboardStateQuery::FTProgram`].
     FTProgram(ActorId),
-    /// Should be returned from [`NFTPixelboardState::NFTProgram`].
+    /// Should be returned from [`NFTPixelboardStateQuery::NFTProgram`].
     NFTProgram(ActorId),
 }
