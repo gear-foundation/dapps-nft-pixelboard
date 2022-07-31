@@ -200,12 +200,13 @@ impl NFTPixelboard {
     }
 
     async fn change_sale_state(&mut self, token_id: TokenId, pixel_price: Option<u128>) {
+        let msg_source = msg::source();
         let (_, token) = get_mut_token_by_id(
             &self.rectangles_by_token_ids,
             &mut self.tokens_by_rectangles,
             token_id,
         );
-        assert_eq!(token.owner, msg::source());
+        assert_eq!(token.owner, msg_source);
 
         if let Some(price) = pixel_price {
             check_pixel_price(price);
@@ -213,7 +214,7 @@ impl NFTPixelboard {
                 utils::transfer_nft(self.nft_program, exec::program_id(), token_id).await;
             }
         } else if token.pixel_price.is_some() {
-            utils::transfer_nft(self.nft_program, msg::source(), token_id).await;
+            utils::transfer_nft(self.nft_program, msg_source, token_id).await;
         }
         token.pixel_price = pixel_price;
 
