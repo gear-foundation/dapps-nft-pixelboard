@@ -256,15 +256,15 @@ extern "C" fn init() {
     let config: InitNFTPixelboard = msg::load().expect("Unable to decode `InitNFTPixelboard`");
 
     if config.owner == ActorId::zero() {
-        panic!("`owner` address mustn't be 0");
+        panic!("`owner` address mustn't be `ActorId::zero()`");
     }
 
     if config.ft_program == ActorId::zero() {
-        panic!("`ft_program` address mustn't be 0");
+        panic!("`ft_program` address mustn't be `ActorId::zero()`");
     }
 
     if config.nft_program == ActorId::zero() {
-        panic!("`nft_program` address mustn't be 0");
+        panic!("`nft_program` address mustn't be `ActorId::zero()`");
     }
 
     if config.block_side_length == 0 {

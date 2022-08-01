@@ -223,7 +223,7 @@ fn minting_n_meta_state() {
         .meta_state()
         .pixel_info((7, 3).into())
         .check(token);
-    // Pixels outside of the token
+    // Pixels outside of the NFT
     pixelboard_program
         .meta_state()
         .pixel_info((2, 2).into())
@@ -261,7 +261,7 @@ fn minting_n_meta_state() {
 
     token.0 = ((9, 9), (10, 10)).into();
     token.1.token_id = 2.into();
-    // Minting a one pixel token
+    // Minting a one pixel NFT
     pixelboard_program
         .mint(FOREIGN_USER, vec![0], token.0)
         .check(2);
@@ -276,7 +276,7 @@ fn minting_n_meta_state() {
         .pixel_info((9, 9).into())
         .check(token);
 
-    // Pixels outside of the one pixel token
+    // Pixels outside of the one pixel NFT
     pixelboard_program
         .meta_state()
         .pixel_info((8, 8).into())

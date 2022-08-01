@@ -16,7 +16,7 @@ fn painting_failures() {
         .mint(USER[0], vec![0; 25], ((3, 3), (8, 8)).into())
         .check(0);
 
-    // Should fail because USER[0] isn't the owner of the token.
+    // Should fail because USER[0] isn't the owner of the NFT.
     pixelboard_program.paint(USER[1], 0, vec![0; 25]).failed();
     // Should fail because `painting` length must equal a pixel count in an NFT.
     pixelboard_program.paint(USER[0], 0, vec![0; 24]).failed();

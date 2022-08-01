@@ -36,7 +36,7 @@ fn reselling() {
     pixelboard_program
         .mint(USER[0], vec![0; 25], token.0)
         .check(0);
-    // Putting the token up for sale
+    // Putting the NFT up for sale
     pixelboard_program
         .change_sale_state(USER[0], 0, Some(MAX_PIXEL_PRICE))
         .check(0);
@@ -47,7 +47,7 @@ fn reselling() {
         .owner(0)
         .check(pixelboard_program.actor_id());
 
-    // Removing the token from sale
+    // Removing the NFT from sale
     pixelboard_program
         .change_sale_state(USER[0], 0, None)
         .check(0);
@@ -59,7 +59,7 @@ fn reselling() {
     pixelboard_program
         .change_sale_state(USER[0], 0, Some(0))
         .check(0);
-    // Updating a token pixel price
+    // Updating an NFT pixel price
     pixelboard_program
         .change_sale_state(USER[0], 0, Some(1))
         .check(0);
@@ -111,7 +111,7 @@ fn reselling_failures() {
     pixelboard_program
         .mint(USER[0], vec![0; 25], ((3, 3), (8, 8)).into())
         .check(0);
-    // Should fail because FOREIGN_USER isn't the owner of the token.
+    // Should fail because FOREIGN_USER isn't the owner of the NFT.
     pixelboard_program
         .change_sale_state(FOREIGN_USER, 0, Some(MAX_PIXEL_PRICE))
         .failed();
@@ -126,7 +126,7 @@ fn reselling_failures() {
         .change_sale_state(USER[0], 0, Some(MAX_PIXEL_PRICE))
         .check(0);
 
-    // Should fail because USER[0] doesn't have enough tokens to buy this NFT.
+    // Should fail because USER[0] doesn't have enough fungible tokens to buy this NFT.
     pixelboard_program.buy(USER[1], 0).failed();
 
     // But a commission should still be debited from USER[0] because USER[0] has enough tokens for it.

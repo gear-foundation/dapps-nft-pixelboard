@@ -9,8 +9,8 @@ use gstd::{prelude::*, ActorId};
 /// resale commission. Here's an explanation.
 ///
 /// The maximum number of pixels that a canvas can contain is
-/// [`BlockSideLength::MAX`]² = 2³². So the maximum price that each pixel
-/// can have is [`u128::MAX`] / [`BlockSideLength::MAX`]² = 2⁹⁶.
+/// [`BlockSideLength::MAX`]² = 2³². So the maximum price that each pixel can
+/// have is [`u128::MAX`] / [`BlockSideLength::MAX`]² = 2⁹⁶.
 ///
 /// To calculate the commission, the number can be multiplied by 100, so, to
 /// avoid an overflow, the number must be divided by 100. Hence 2⁹⁶ / 100.
@@ -19,12 +19,12 @@ pub const MAX_PIXEL_PRICE: u128 = 2u128.pow(96) / 100;
 /// A block side length.
 ///
 /// It's also used to store pixel [`Coordinates`], [`Resolution`] of a canvas,
-/// and token [`Rectangle`]s.
+/// and NFT [`Rectangle`]s.
 pub type BlockSideLength = u16;
 /// A pixel color.
 pub type Color = u8;
 
-/// Coordinates of the corners of a token rectangle on a canvas.
+/// Coordinates of the corners of an NFT rectangle on a canvas.
 #[derive(Decode, Encode, TypeInfo, PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug, Default)]
 pub struct Rectangle {
     pub top_left_corner: Coordinates,
@@ -95,15 +95,14 @@ pub struct Token(pub Rectangle, pub TokenInfo);
 pub struct TokenInfo {
     pub token_id: TokenId,
     pub owner: ActorId,
-    /// If this field is [`None`], then this token isn't for sale, and vice
-    /// versa.
+    /// If this field is [`None`], then this NFT isn't for sale, and vice versa.
     ///
-    /// To calculate a price of the entire token, its area must be calculated
-    /// and multiplied by `pixel_price`. The area can be calculated by
-    /// multiplying a [width](`Rectangle::width`) &
-    /// [height](`Rectangle::height`) from token [`Rectangle`]. Token
-    /// [`Rectangle`] can be obtained by [`NFTPixelboardStateQuery::TokenInfo`]
-    /// using `token_id` from this struct.
+    /// To calculate a price of the entire NFT, its area must be calculated and
+    /// multiplied by `pixel_price`. The area can be calculated by multiplying a
+    /// [width](`Rectangle::width`) & [height](`Rectangle::height`) from NFT
+    /// [`Rectangle`]. NFT [`Rectangle`] can be obtained by
+    /// [`NFTPixelboardStateQuery::TokenInfo`] using `token_id` from this
+    /// struct.
     pub pixel_price: Option<u128>,
 }
 
@@ -114,8 +113,8 @@ pub struct TokenInfo {
 /// * `block_side_length` must be more than 0.
 /// * `pixel_price` mustn't be more than [`MAX_PIXEL_PRICE`].
 /// * A [width](`Resolution#structfield.width`) &
-/// [height](`Resolution#structfield.height`) (`resolution`) of a canvas must
-/// be more than 0.
+/// [height](`Resolution#structfield.height`) (`resolution`) of a canvas must be
+/// more than 0.
 /// * Each side of `resolution` must be a multiple of `block_side_length`.
 /// * `painting` length must equal a pixel count in a canvas (which can be
 /// calculated by multiplying a [width](`Resolution#structfield.width`) &
@@ -131,17 +130,16 @@ pub struct InitNFTPixelboard {
     /// A block side length.
     ///
     /// To avoid a canvas clogging with one pixel NFTs, blocks are used instead
-    /// of pixels to set token [`Rectangle`]s. This parameter is used to set a
-    /// side length of these pixel blocks. If blocks aren't needed,
-    /// then this parameter can be set to 1, so the block side length
-    /// will equal a pixel.
+    /// of pixels to set NFT [`Rectangle`]s. This parameter is used to set a
+    /// side length of these pixel blocks. If blocks aren't needed, then this
+    /// parameter can be set to 1, so the block side length will equal a pixel.
     pub block_side_length: BlockSideLength,
     /// The price of a free pixel. It'll be used to calculate a minting price.
     pub pixel_price: u128,
     /// A canvas (pixelboard) [width](`Resolution#structfield.width`) &
     /// [height](`Resolution#structfield.height`).
     pub resolution: Resolution,
-    /// A commission percentage that'll be included in each token resale.
+    /// A commission percentage that'll be included in each NFT resale.
     pub commission_percentage: u8,
     /// A painting that'll be displayed on the free territory of a pixelboard.
     pub painting: Vec<Color>,
@@ -155,7 +153,7 @@ pub struct InitNFTPixelboard {
 /// Sends a program info about what it should do.
 #[derive(Decode, Encode, TypeInfo, Clone)]
 pub enum NFTPixelboardAction {
-    /// Mints one NFT on a pixelboard with given `token_metadata`.
+    /// Mints one NFT on a pixelboard with given `token_metadata` & `painting`.
     ///
     /// Transfers a minted NFT to [`msg::source()`].
     ///
@@ -163,20 +161,21 @@ pub enum NFTPixelboardAction {
     /// * `rectangle` coordinates mustn't be out of a canvas.
     /// * `rectangle` coordinates mustn't be mixed up or belong to wrong
     /// corners.
-    /// * `rectangle` coordinates must observe a block layout. In
-    /// other words, each `rectangle` coordinate must be a multiple of a
-    /// block side length in the canvas. The block side length can be
-    /// obtained by [`NFTPixelboardStateQuery::BlockSideLength`].
+    /// * `rectangle` coordinates must observe a block layout. In other words,
+    /// each `rectangle` coordinate must be a multiple of a block side length in
+    /// the canvas. The block side length can be obtained by
+    /// [`NFTPixelboardStateQuery::BlockSideLength`].
     /// * NFT `rectangle` mustn't collide with already minted one.
     /// * `painting` length must equal a pixel count in an NFT
-    /// (which can be calculated by multiplying a [width](`Rectangle::width`)
-    /// & [height](`Rectangle::height`) from `rectangle`).
-    /// * [`msg::source()`] must have enough tokens to buy all free pixels that
-    /// `rectangle` will occupy. An enough number of tokens can be calculated by
-    /// multiplying a `rectangle` area and the price of a free pixel. The area
-    /// can be calculated by multiplying a [width](`Rectangle::width`) &
-    /// [height](`Rectangle::height`) from `rectangle`. The price of a free
-    /// pixel can be obtained by [`NFTPixelboardStateQuery::PixelPrice`].
+    /// (which can be calculated by multiplying a [width](`Rectangle::width`) &
+    /// [height](`Rectangle::height`) from `rectangle`).
+    /// * [`msg::source()`] must have enough fungible tokens to buy all free
+    /// pixels that `rectangle` will occupy. An enough number of tokens can be
+    /// calculated by multiplying a `rectangle` area and the price of a free
+    /// pixel. The area can be calculated by multiplying a
+    /// [width](`Rectangle::width`) & [height](`Rectangle::height`) from
+    /// `rectangle`. The price of a free pixel can be obtained by
+    /// [`NFTPixelboardStateQuery::PixelPrice`].
     ///
     /// On success, returns [`NFTPixelboardEvent::Minted`].
     ///
@@ -191,19 +190,20 @@ pub enum NFTPixelboardAction {
 
     /// Buys an NFT minted on a pixelboard.
     ///
-    /// Transfers a purchased NFT from a pixelboard to [`msg::source()`].
+    /// Transfers a purchased NFT from a pixelboard program to
+    /// [`msg::source()`].
     ///
-    /// **Note:** If [`msg::source()`] has enough tokens to pay a resale
-    /// commission but not the entire token, then the commission will still be
-    /// withdrawn from its account.
+    /// **Note:** If [`msg::source()`] has enough fungible tokens to pay a
+    /// resale commission but not the entire NFT, then the commission will still
+    /// be withdrawn from its account.
     ///
     /// # Requirements
     /// * An NFT must be minted on a pixelboard.
     /// * An NFT must be for sale. This can be found out by
     /// [`NFTPixelboardStateQuery::TokenInfo`]. See also the documentation of
     /// [`TokenInfo#structfield.pixel_price`].
-    /// * [`msg::source()`] must have enough tokens to buy all pixels that a
-    /// token occupies. This can be found out by
+    /// * [`msg::source()`] must have enough fungible tokens to buy all pixels
+    /// that an NFT occupies. This can be found out by
     /// [`NFTPixelboardStateQuery::TokenInfo`]. See also the documentation of
     /// [`TokenInfo#structfield.pixel_price`].
     ///
@@ -225,9 +225,9 @@ pub enum NFTPixelboardAction {
     /// Assigning the `pixel_price` to [`None`] will transfer an NFT back to its
     /// owner & remove an NFT from sale.
     ///
-    /// **Note:** A commission is included in each token resale, so a seller
-    /// will receive not all tokens but tokens with a commission deduction. A
-    /// commission percentage can be obtained by
+    /// **Note:** A commission is included in each NFT resale, so a seller
+    /// will receive not all fungible tokens but tokens with a commission
+    /// deduction. A commission percentage can be obtained by
     /// [`NFTPixelboardStateQuery::CommissionPercentage`].
     ///
     /// # Requirements
@@ -244,7 +244,7 @@ pub enum NFTPixelboardAction {
         pixel_price: Option<u128>,
     },
 
-    /// Paints an NFT minted on a pixelboard.
+    /// Paints with `painting` an NFT minted on a pixelboard.
     ///
     /// # Requirements
     /// * An NFT must be minted on a pixelboard.

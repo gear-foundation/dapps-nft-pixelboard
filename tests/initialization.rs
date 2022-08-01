@@ -23,17 +23,17 @@ fn initialization_failures() {
 
     let mut failed_pixelboard_config = pixelboard_config.clone();
     failed_pixelboard_config.owner = ActorId::zero();
-    // Should fail because `owner` address mustn't be 0.
+    // Should fail because `owner` address mustn't be `ActorId::zero()`.
     NFTPixelboard::initialize_custom(&system, failed_pixelboard_config).failed();
 
     failed_pixelboard_config = pixelboard_config.clone();
     failed_pixelboard_config.ft_program = ActorId::zero();
-    // Should fail because `ft_program` address mustn't be 0.
+    // Should fail because `ft_program` address mustn't be `ActorId::zero()`.
     NFTPixelboard::initialize_custom(&system, failed_pixelboard_config).failed();
 
     failed_pixelboard_config = pixelboard_config.clone();
     failed_pixelboard_config.nft_program = ActorId::zero();
-    // Should fail because `nft_program` address mustn't be 0.
+    // Should fail because `nft_program` address mustn't be `ActorId::zero()`.
     NFTPixelboard::initialize_custom(&system, failed_pixelboard_config).failed();
 
     failed_pixelboard_config = pixelboard_config.clone();
