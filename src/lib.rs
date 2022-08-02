@@ -253,50 +253,57 @@ static mut PROGRAM: Option<NFTPixelboard> = None;
 
 #[no_mangle]
 extern "C" fn init() {
-    let config: InitNFTPixelboard = msg::load().expect("Unable to decode `InitNFTPixelboard`");
+    let InitNFTPixelboard {
+        owner,
+        ft_program,
+        nft_program,
+        block_side_length,
+        painting,
+        resolution,
+        commission_percentage,
+        pixel_price,
+    } = msg::load().expect("Unable to decode `InitNFTPixelboard`");
 
-    if config.owner == ActorId::zero() {
+    if owner == ActorId::zero() {
         panic!("`owner` address mustn't be `ActorId::zero()`");
     }
 
-    if config.ft_program == ActorId::zero() {
+    if ft_program == ActorId::zero() {
         panic!("`ft_program` address mustn't be `ActorId::zero()`");
     }
 
-    if config.nft_program == ActorId::zero() {
+    if nft_program == ActorId::zero() {
         panic!("`nft_program` address mustn't be `ActorId::zero()`");
     }
 
-    if config.block_side_length == 0 {
+    if block_side_length == 0 {
         panic!("`block_side_length` must be more than 0");
     }
 
     check_painting(
-        &config.painting,
-        get_pixel_count(config.resolution.width, config.resolution.height),
+        &painting,
+        get_pixel_count(resolution.width, resolution.height),
     );
 
-    if config.resolution.width % config.block_side_length != 0
-        || config.resolution.height % config.block_side_length != 0
-    {
+    if resolution.width % block_side_length != 0 || resolution.height % block_side_length != 0 {
         panic!("Each side of `resolution` must be a multiple of `block_side_length`");
     }
 
-    if config.commission_percentage > 100 {
+    if commission_percentage > 100 {
         panic!("`commission_percentage` mustn't be more than 100");
     }
 
-    check_pixel_price(config.pixel_price);
+    check_pixel_price(pixel_price);
 
     let program = NFTPixelboard {
-        owner: config.owner,
-        ft_program: config.ft_program,
-        nft_program: config.nft_program,
-        block_side_length: config.block_side_length,
-        painting: config.painting,
-        pixel_price: config.pixel_price,
-        commission_percentage: config.commission_percentage,
-        resolution: config.resolution,
+        owner,
+        ft_program,
+        nft_program,
+        block_side_length,
+        painting,
+        pixel_price,
+        commission_percentage,
+        resolution,
         ..Default::default()
     };
     unsafe {

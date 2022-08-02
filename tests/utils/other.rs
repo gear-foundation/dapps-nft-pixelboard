@@ -28,8 +28,7 @@ impl<T: Debug + PartialEq> MetaStateReply<T> {
 
 pub struct Action<F, T, R>(pub RunResult, pub F, pub PhantomData<(T, R)>)
 where
-    F: FnOnce(T) -> R,
-    R: Encode;
+    F: FnOnce(T) -> R;
 
 impl<F, T, R> Action<F, T, R>
 where
