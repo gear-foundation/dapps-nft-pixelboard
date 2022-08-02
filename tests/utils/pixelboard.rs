@@ -15,9 +15,9 @@ impl Program for NFTPixelboard<'_> {
     }
 }
 
-impl<'a> NFTPixelboard<'a> {
+impl NFTPixelboard<'_> {
     pub fn initialize(
-        system: &'a System,
+        system: &System,
         ft_program: ActorId,
         nft_program: ActorId,
     ) -> NFTPixelboardInit {
@@ -36,7 +36,7 @@ impl<'a> NFTPixelboard<'a> {
         )
     }
 
-    pub fn initialize_custom(system: &'a System, config: InitNFTPixelboard) -> NFTPixelboardInit {
+    pub fn initialize_custom(system: &System, config: InitNFTPixelboard) -> NFTPixelboardInit {
         let program = InnerProgram::current(system);
 
         let failed = program.send(FOREIGN_USER, config).main_failed();
