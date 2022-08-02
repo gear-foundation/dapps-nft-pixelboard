@@ -26,7 +26,7 @@ fn check_pixel_price(pixel_price: u128) {
     }
 }
 
-fn get_mut_token_by_id<'a>(
+fn get_mut_token<'a>(
     rectangles: &'a BTreeMap<TokenId, Rectangle>,
     tokens: &'a mut BTreeMap<Rectangle, TokenInfo>,
     token_id: TokenId,
@@ -168,7 +168,7 @@ impl NFTPixelboard {
 
     async fn buy(&mut self, token_id: TokenId) {
         let msg_source = msg::source();
-        let (rectangle, token) = get_mut_token_by_id(
+        let (rectangle, token) = get_mut_token(
             &self.rectangles_by_token_ids,
             &mut self.tokens_by_rectangles,
             token_id,
@@ -201,7 +201,7 @@ impl NFTPixelboard {
 
     async fn change_sale_state(&mut self, token_id: TokenId, pixel_price: Option<u128>) {
         let msg_source = msg::source();
-        let (_, token) = get_mut_token_by_id(
+        let (_, token) = get_mut_token(
             &self.rectangles_by_token_ids,
             &mut self.tokens_by_rectangles,
             token_id,
@@ -222,7 +222,7 @@ impl NFTPixelboard {
     }
 
     fn paint(&mut self, token_id: TokenId, painting: Vec<Color>) {
-        let (rectangle, token) = get_mut_token_by_id(
+        let (rectangle, token) = get_mut_token(
             &self.rectangles_by_token_ids,
             &mut self.tokens_by_rectangles,
             token_id,
