@@ -332,10 +332,10 @@ async fn main() {
 
 #[no_mangle]
 extern "C" fn meta_state() -> *mut [i32; 2] {
-    let state: NFTPixelboardStateQuery =
+    let query: NFTPixelboardStateQuery =
         msg::load().expect("Unable to decode `NFTPixelboardStateQuery`");
     let program = unsafe { PROGRAM.get_or_insert(Default::default()) };
-    let encoded = match state {
+    let encoded = match query {
         NFTPixelboardStateQuery::Painting => {
             NFTPixelboardStateReply::Painting(program.painting.clone())
         }
