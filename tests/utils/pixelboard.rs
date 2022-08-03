@@ -6,6 +6,8 @@ use gear_lib::non_fungible_token::token::TokenMetadata;
 use gstd::ActorId;
 use gtest::{Program as InnerProgram, System};
 
+type ActionNFTPixelboard<T> = Action<T, NFTPixelboardEvent>;
+
 pub struct NFTPixelboard<'a>(InnerProgram<'a>);
 
 impl Program for NFTPixelboard<'_> {
@@ -52,7 +54,7 @@ impl NFTPixelboard<'_> {
         from: u64,
         painting: Vec<Color>,
         rectangle: Rectangle,
-    ) -> Action<u128, NFTPixelboardEvent> {
+    ) -> ActionNFTPixelboard<u128> {
         self.mint_with_metadata(from, painting, rectangle, Default::default())
     }
 
@@ -62,7 +64,7 @@ impl NFTPixelboard<'_> {
         painting: Vec<Color>,
         rectangle: Rectangle,
         token_metadata: TokenMetadata,
-    ) -> Action<u128, NFTPixelboardEvent> {
+    ) -> ActionNFTPixelboard<u128> {
         Action(
             self.0.send(
                 from,
@@ -81,7 +83,7 @@ impl NFTPixelboard<'_> {
         from: u64,
         token_id: u128,
         pixel_price: Option<u128>,
-    ) -> Action<u128, NFTPixelboardEvent> {
+    ) -> ActionNFTPixelboard<u128> {
         Action(
             self.0.send(
                 from,
@@ -94,7 +96,7 @@ impl NFTPixelboard<'_> {
         )
     }
 
-    pub fn buy(&self, from: u64, token_id: u128) -> Action<u128, NFTPixelboardEvent> {
+    pub fn buy(&self, from: u64, token_id: u128) -> ActionNFTPixelboard<u128> {
         Action(
             self.0.send(from, NFTPixelboardAction::Buy(token_id.into())),
             |token_id| NFTPixelboardEvent::Bought(token_id.into()),
@@ -106,7 +108,7 @@ impl NFTPixelboard<'_> {
         from: u64,
         token_id: u128,
         painting: Vec<Color>,
-    ) -> Action<u128, NFTPixelboardEvent> {
+    ) -> ActionNFTPixelboard<u128> {
         Action(
             self.0.send(
                 from,
