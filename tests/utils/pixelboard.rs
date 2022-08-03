@@ -1,5 +1,5 @@
 use super::{
-    other::{Action, MetaStateReply},
+    common::{Action, MetaStateReply},
     prelude::*,
 };
 use gear_lib::non_fungible_token::token::TokenMetadata;
@@ -94,11 +94,7 @@ impl NFTPixelboard<'_> {
         )
     }
 
-    pub fn buy(
-        &self,
-        from: u64,
-        token_id: u128,
-    ) -> Action<u128, NFTPixelboardEvent> {
+    pub fn buy(&self, from: u64, token_id: u128) -> Action<u128, NFTPixelboardEvent> {
         Action(
             self.0.send(from, NFTPixelboardAction::Buy(token_id.into())),
             |token_id| NFTPixelboardEvent::Bought(token_id.into()),

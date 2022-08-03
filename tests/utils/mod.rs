@@ -7,7 +7,7 @@ pub use ftoken::*;
 mod nftoken;
 pub use nftoken::*;
 
-mod other;
-pub use other::*;
+mod common;
+pub use common::*;
 
 pub mod prelude;

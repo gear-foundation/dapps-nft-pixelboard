@@ -1,4 +1,4 @@
-use super::{other::Action, prelude::*};
+use super::{common::Action, prelude::*};
 use ft_io::{FTAction, FTEvent, InitConfig as InitFT};
 use gstd::ActorId;
 use gtest::{Log, Program as InnerProgram, System};
