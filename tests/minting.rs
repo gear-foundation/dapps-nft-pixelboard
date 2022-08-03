@@ -151,7 +151,7 @@ fn minting_n_meta_state() {
 
     let nft_program = NonFungibleToken::initialize(&system);
     let pixelboard_program =
-        NFTPixelboard::initialize(&system, ft_program.actor_id(), nft_program.actor_id()).succeed();
+        NFTPixelboard::initialize(&system, ft_program.actor_id(), nft_program.actor_id());
 
     let mut token = Token(
         ((1, 1), (2, 7)).into(),

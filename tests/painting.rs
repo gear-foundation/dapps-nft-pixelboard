@@ -10,7 +10,7 @@ fn painting_failures() {
 
     let nft_program = NonFungibleToken::initialize(&system);
     let pixelboard_program =
-        NFTPixelboard::initialize(&system, ft_program.actor_id(), nft_program.actor_id()).succeed();
+        NFTPixelboard::initialize(&system, ft_program.actor_id(), nft_program.actor_id());
 
     pixelboard_program
         .mint(USER[0], vec![0; 25], ((3, 3), (8, 8)).into())
@@ -34,7 +34,7 @@ fn painting() {
     let nft_program = NonFungibleToken::initialize(&system);
 
     let mut pixelboard_program =
-        NFTPixelboard::initialize(&system, ft_program.actor_id(), nft_program.actor_id()).succeed();
+        NFTPixelboard::initialize(&system, ft_program.actor_id(), nft_program.actor_id());
 
     pixelboard_program
         .mint(FOREIGN_USER, vec![0; 25], ((3, 3), (8, 8)).into())
