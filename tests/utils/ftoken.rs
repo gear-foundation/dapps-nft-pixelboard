@@ -1,5 +1,4 @@
 use super::{other::Action, prelude::*};
-use core::marker::PhantomData;
 use ft_io::{FTAction, FTEvent, InitConfig as InitFT};
 use gstd::ActorId;
 use gtest::{Log, Program as InnerProgram, System};
@@ -41,12 +40,11 @@ impl<'a> FungibleToken<'a> {
             })))
     }
 
-    pub fn balance(&self, actor_id: u64) -> Action<impl FnOnce(u128) -> FTEvent, u128, FTEvent> {
+    pub fn balance(&self, actor_id: u64) -> Action<u128, FTEvent> {
         Action(
             self.0
                 .send(FOREIGN_USER, FTAction::BalanceOf(actor_id.into())),
             FTEvent::Balance,
-            PhantomData,
         )
     }
 }

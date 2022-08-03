@@ -1,5 +1,5 @@
 use super::prelude::*;
-use core::{fmt::Debug, marker::PhantomData};
+use core::fmt::Debug;
 use gstd::ActorId;
 use gtest::{Log, Program as InnerProgram, RunResult, System};
 
@@ -27,17 +27,14 @@ impl<T: Debug + PartialEq> MetaStateReply<T> {
     }
 }
 
-pub struct Action<F, T, R>(pub RunResult, pub F, pub PhantomData<(T, R)>)
-where
-    F: FnOnce(T) -> R;
+pub struct Action<T, R>(pub RunResult, pub fn(T) -> R);
 
-impl<F, T, R> Action<F, T, R>
-where
-    F: FnOnce(T) -> R,
-    R: Encode,
-{
+impl<T, R> Action<T, R> {
     #[track_caller]
-    pub fn check(self, value: T) {
+    pub fn check(self, value: T)
+    where
+        R: Encode,
+    {
         assert!(self.0.contains(&Log::builder().payload(self.1(value))));
     }
 

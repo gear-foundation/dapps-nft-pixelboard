@@ -2,7 +2,6 @@ use super::{
     other::{Action, MetaStateReply},
     prelude::*,
 };
-use core::marker::PhantomData;
 use gear_lib::non_fungible_token::token::TokenMetadata;
 use gstd::ActorId;
 use gtest::{Program as InnerProgram, System};
@@ -53,7 +52,7 @@ impl NFTPixelboard<'_> {
         from: u64,
         painting: Vec<Color>,
         rectangle: Rectangle,
-    ) -> Action<impl FnOnce(u128) -> NFTPixelboardEvent, u128, NFTPixelboardEvent> {
+    ) -> Action<u128, NFTPixelboardEvent> {
         self.mint_with_metadata(from, painting, rectangle, Default::default())
     }
 
@@ -63,7 +62,7 @@ impl NFTPixelboard<'_> {
         painting: Vec<Color>,
         rectangle: Rectangle,
         token_metadata: TokenMetadata,
-    ) -> Action<impl FnOnce(u128) -> NFTPixelboardEvent, u128, NFTPixelboardEvent> {
+    ) -> Action<u128, NFTPixelboardEvent> {
         Action(
             self.0.send(
                 from,
@@ -74,7 +73,6 @@ impl NFTPixelboard<'_> {
                 },
             ),
             |value| NFTPixelboardEvent::Minted(value.into()),
-            PhantomData,
         )
     }
 
@@ -83,7 +81,7 @@ impl NFTPixelboard<'_> {
         from: u64,
         token_id: u128,
         pixel_price: Option<u128>,
-    ) -> Action<impl FnOnce(u128) -> NFTPixelboardEvent, u128, NFTPixelboardEvent> {
+    ) -> Action<u128, NFTPixelboardEvent> {
         Action(
             self.0.send(
                 from,
@@ -93,7 +91,6 @@ impl NFTPixelboard<'_> {
                 },
             ),
             |token_id| NFTPixelboardEvent::SaleStateChanged(token_id.into()),
-            PhantomData,
         )
     }
 
@@ -101,11 +98,10 @@ impl NFTPixelboard<'_> {
         &self,
         from: u64,
         token_id: u128,
-    ) -> Action<impl FnOnce(u128) -> NFTPixelboardEvent, u128, NFTPixelboardEvent> {
+    ) -> Action<u128, NFTPixelboardEvent> {
         Action(
             self.0.send(from, NFTPixelboardAction::Buy(token_id.into())),
             |token_id| NFTPixelboardEvent::Bought(token_id.into()),
-            PhantomData,
         )
     }
 
@@ -114,7 +110,7 @@ impl NFTPixelboard<'_> {
         from: u64,
         token_id: u128,
         painting: Vec<Color>,
-    ) -> Action<impl FnOnce(u128) -> NFTPixelboardEvent, u128, NFTPixelboardEvent> {
+    ) -> Action<u128, NFTPixelboardEvent> {
         Action(
             self.0.send(
                 from,
@@ -124,7 +120,6 @@ impl NFTPixelboard<'_> {
                 },
             ),
             |token_id| NFTPixelboardEvent::Painted(token_id.into()),
-            PhantomData,
         )
     }
 }
