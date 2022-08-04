@@ -17,11 +17,7 @@ impl Program for NFTPixelboard<'_> {
 }
 
 impl<'a> NFTPixelboard<'a> {
-    pub fn initialize(
-        system: &'a System,
-        ft_program: ActorId,
-        nft_program: ActorId,
-    ) -> Self {
+    pub fn initialize(system: &'a System, ft_program: ActorId, nft_program: ActorId) -> Self {
         Self::initialize_custom(
             system,
             InitNFTPixelboard {
@@ -34,7 +30,8 @@ impl<'a> NFTPixelboard<'a> {
                 commission_percentage: 100,
                 resolution: (10, 10).into(),
             },
-        ).succeed()
+        )
+        .succeed()
     }
 
     pub fn initialize_custom(system: &System, config: InitNFTPixelboard) -> NFTPixelboardInit {
