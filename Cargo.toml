@@ -10,7 +10,7 @@ gstd = { git = "https://github.com/gear-tech/gear.git" }
 nft-pixelboard-io = { path = "io" }
 gear-lib = { git = "https://github.com/gear-dapps/gear-lib.git" }
 ft-io = { git = "https://github.com/gear-dapps/fungible-token.git", tag = "0.1.0" }
-nft-io = { git = "https://github.com/gear-dapps/non-fungible-token.git", tag = "0.1.0" }
+nft-io = { git = "https://github.com/gear-dapps/non-fungible-token.git", tag = "0.2.1" }
 
 [dev-dependencies]
 gtest = { git = "https://github.com/gear-tech/gear.git" }
