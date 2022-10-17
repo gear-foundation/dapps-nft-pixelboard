@@ -9,7 +9,7 @@ authors = ["Gear Technologies"]
 gstd = { git = "https://github.com/gear-tech/gear.git" }
 nft-pixelboard-io = { path = "io" }
 gear-lib = { git = "https://github.com/gear-dapps/gear-lib.git" }
-ft-io = { git = "https://github.com/gear-dapps/fungible-token.git", tag = "0.1.0" }
+ft-io = { git = "https://github.com/gear-dapps/fungible-token.git", tag = "0.1.1" }
 nft-io = { git = "https://github.com/gear-dapps/non-fungible-token.git", tag = "0.1.0" }
 
 [dev-dependencies]
