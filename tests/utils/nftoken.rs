@@ -17,7 +17,7 @@ impl Program for NonFungibleToken<'_> {
 
 impl<'a> NonFungibleToken<'a> {
     pub fn initialize(system: &'a System) -> Self {
-        let program = InnerProgram::from_file(system, "./target/nft-0.1.0.wasm");
+        let program = InnerProgram::from_file(system, "./target/nft-0.2.3.opt.wasm");
 
         assert!(!program
             .send(

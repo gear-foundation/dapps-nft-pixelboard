@@ -13,7 +13,7 @@ impl Program for FungibleToken<'_> {
 
 impl<'a> FungibleToken<'a> {
     pub fn initialize(system: &'a System) -> Self {
-        let program = InnerProgram::from_file(system, "./target/fungible_token-0.1.0.wasm");
+        let program = InnerProgram::from_file(system, "./target/fungible_token-0.1.2.opt.wasm");
 
         assert!(!program
             .send(

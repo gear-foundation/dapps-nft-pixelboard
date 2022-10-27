@@ -6,9 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.1] - 2022-10-26
+### Changed
+- Updated `gstd`, `gtest`, `gear-wasm-builder` to the actual revision (`#d4552434`).
+
 ## [0.1.0] - 2022-08-01
 ### Added
 - Initial release.
 
-[Unreleased]: https://github.com/gear-dapps/nft-pixelboard/compare/0.1.0...HEAD
+[Unreleased]: https://github.com/gear-dapps/nft-pixelboard/compare/0.1.1...HEAD
+[0.1.1]: https://github.com/gear-dapps/nft-pixelboard/compare/0.1.0...0.1.1
 [0.1.0]: https://github.com/gear-dapps/nft-pixelboard/compare/b1a0e3c...0.1.0
