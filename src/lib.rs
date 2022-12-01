@@ -1,10 +1,12 @@
 #![no_std]
 
+pub mod io;
+mod utils;
+
 use gear_lib::non_fungible_token::token::{TokenId, TokenMetadata};
 use gstd::{async_main, exec, msg, prelude::*, ActorId};
-use nft_pixelboard_io::*;
 
-mod utils;
+use crate::io::*;
 
 fn get_pixel_count<P: Into<usize>>(width: P, height: P) -> usize {
     let pixel_count = width.into() * height.into();

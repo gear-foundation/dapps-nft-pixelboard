@@ -5,7 +5,8 @@ use gear_lib::non_fungible_token::{
 };
 use gstd::{msg, prelude::*, ActorId};
 use nft_io::NFTAction;
-use nft_pixelboard_io::*;
+
+use crate::io::*;
 
 pub fn reply(nft_pixelboard_event: NFTPixelboardEvent) {
     msg::reply(nft_pixelboard_event, 0).expect("Error during replying with `NFTPixelboardEvent`");
