@@ -23,6 +23,8 @@ pub const MAX_PIXEL_PRICE: u128 = 2u128.pow(96) / 100;
 pub type BlockSideLength = u16;
 /// A pixel color.
 pub type Color = u8;
+/// A transaction id for tracking transactions in the fungible token contract.
+pub type TransactionId = u64;
 
 /// Coordinates of the corners of an NFT rectangle on a canvas.
 #[derive(Decode, Encode, TypeInfo, PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug, Default)]
@@ -93,7 +95,7 @@ pub struct Token(pub Rectangle, pub TokenInfo);
 /// NFT info.
 #[derive(Decode, Encode, TypeInfo, Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub struct TokenInfo {
-    pub token_id: TokenId,
+    pub token_id: Option<TokenId>,
     pub owner: ActorId,
     /// If this field is [`None`], then this NFT isn't for sale, and vice versa.
     ///
@@ -151,7 +153,7 @@ pub struct InitNFTPixelboard {
 }
 
 /// Sends a program info about what it should do.
-#[derive(Decode, Encode, TypeInfo, Clone)]
+#[derive(Decode, Encode, TypeInfo, Clone, PartialEq, Eq)]
 pub enum NFTPixelboardAction {
     /// Mints one NFT on a pixelboard with given `token_metadata` & `painting`.
     ///
@@ -261,7 +263,7 @@ pub enum NFTPixelboardAction {
     },
 }
 
-/// A result of processed [`NFTPixelboardAction`].
+/// A result of processed [`NFTPixelboardAction`] in case of successfull execution.
 #[derive(Decode, Encode, TypeInfo)]
 pub enum NFTPixelboardEvent {
     /// Should be returned from [`NFTPixelboardAction::Mint`].
@@ -272,6 +274,26 @@ pub enum NFTPixelboardEvent {
     SaleStateChanged(TokenId),
     /// Should be returned from [`NFTPixelboardAction::Paint`].
     Painted(TokenId),
+}
+
+/// A result of processed [`NFTPixelboardAction`] in case of failure.
+#[derive(Decode, Encode, TypeInfo)]
+pub enum NFTPixelboardError {
+    ZeroWidthOrHeight,
+    WrongPaintingLength,
+    PixelPriceExceeded,
+    NFTNotFoundById,
+    NFTNotFountByRectangle,
+    NFTIsNotOnSale,
+    NotOwner,
+    CoordinatesNotObserveBlockLayout,
+    CoordinatesWithWrongCorners,
+    CoordinatesOutOfCanvas,
+    CoordinatesCollision,
+    PreviousTxMustBeCompleted,
+    NFTTransferFailed,
+    FTokensTransferFailed,
+    NFTMintFailed,
 }
 
 /// Queries a program state.

@@ -1,43 +1,49 @@
 #![no_std]
 
 use gear_lib::non_fungible_token::token::{TokenId, TokenMetadata};
-use gstd::{async_main, exec, msg, prelude::*, ActorId};
+use gstd::{async_main, errors::Result as GstdResult, exec, msg, prelude::*, ActorId, MessageId};
 use nft_pixelboard_io::*;
-
 mod utils;
+pub const MIN_STEP_FOR_TX: u64 = 3;
 
-fn get_pixel_count<P: Into<usize>>(width: P, height: P) -> usize {
+fn get_pixel_count<P: Into<usize>>(width: P, height: P) -> Result<usize, NFTPixelboardError> {
     let pixel_count = width.into() * height.into();
     if pixel_count == 0 {
-        panic!("Width & height of a canvas/NFT must be more than 0");
+        return Err(NFTPixelboardError::ZeroWidthOrHeight);
     };
-    pixel_count
+    Ok(pixel_count)
 }
 
-fn check_painting(painting: &Vec<Color>, pixel_count: usize) {
+fn check_painting(painting: &Vec<Color>, pixel_count: usize) -> Result<(), NFTPixelboardError> {
     if painting.len() != pixel_count {
-        panic!("`painting` length must equal a pixel count in a canvas/NFT");
+        return Err(NFTPixelboardError::WrongPaintingLength);
     }
+    Ok(())
 }
 
-fn check_pixel_price(pixel_price: u128) {
+fn check_pixel_price(pixel_price: u128) -> Result<(), NFTPixelboardError> {
     if pixel_price > MAX_PIXEL_PRICE {
-        panic!("`pixel_price` mustn't be more than `MAX_PIXEL_PRICE`");
+        return Err(NFTPixelboardError::PixelPriceExceeded);
     }
+    Ok(())
 }
 
 fn get_mut_token<'a>(
     rectangles: &'a BTreeMap<TokenId, Rectangle>,
     tokens: &'a mut BTreeMap<Rectangle, TokenInfo>,
     token_id: TokenId,
-) -> (&'a Rectangle, &'a mut TokenInfo) {
-    let rectangle = rectangles.get(&token_id).expect("NFT not found by an ID");
-    (
-        rectangle,
+) -> Result<(&'a Rectangle, &'a mut TokenInfo), NFTPixelboardError> {
+    let rectangle = if let Some(rectangle) = rectangles.get(&token_id) {
+        rectangle
+    } else {
+        return Err(NFTPixelboardError::NFTNotFoundById);
+    };
+    let tokens = if let Some(tokens) = tokens.get_mut(&rectangle) {
         tokens
-            .get_mut(rectangle)
-            .expect("NFT not found by a rectangle"),
-    )
+    } else {
+        return Err(NFTPixelboardError::NFTNotFountByRectangle);
+    };
+    Ok((rectangle, tokens))
 }
 
 fn paint(
@@ -80,55 +86,48 @@ struct NFTPixelboard {
 
     ft_program: ActorId,
     nft_program: ActorId,
+
+    txs: BTreeMap<ActorId, (TransactionId, NFTPixelboardAction)>,
+    tx_id: TransactionId,
 }
 
 impl NFTPixelboard {
     async fn mint(
         &mut self,
+        mut tx_id: TransactionId,
         rectangle: Rectangle,
         token_metadata: TokenMetadata,
         painting: Vec<Color>,
-    ) {
+    ) -> Result<NFTPixelboardEvent, NFTPixelboardError> {
         let msg_source = msg::source();
+        let rectangle_width = rectangle.width() as usize;
+        let rectangle_height = rectangle.height() as usize;
+        let rectangle_pixel_count = get_pixel_count(rectangle_width, rectangle_height)?;
 
-        // Coordinates checks
+        // Payment: transfer to contract account
+        utils::transfer_ftokens(
+            tx_id,
+            &self.ft_program,
+            &msg_source,
+            &exec::program_id(),
+            rectangle_pixel_count as u128 * self.pixel_price,
+        )
+        .await?;
 
-        if rectangle.top_left_corner.x % self.block_side_length != 0
-            || rectangle.top_left_corner.y % self.block_side_length != 0
-            || rectangle.bottom_right_corner.x % self.block_side_length != 0
-            || rectangle.bottom_right_corner.y % self.block_side_length != 0
-        {
-            panic!("Coordinates doesn't observe a block layout");
-        }
-
-        if rectangle.top_left_corner.x > rectangle.bottom_right_corner.x
-            || rectangle.top_left_corner.y > rectangle.bottom_right_corner.y
-        {
-            panic!("Coordinates are mixed up or belong to wrong corners");
-        }
-
-        if rectangle.bottom_right_corner.x > self.resolution.width
-            || rectangle.bottom_right_corner.y > self.resolution.height
-        {
-            panic!("Coordinates are out of a canvas");
-        }
-
-        if self.tokens_by_rectangles.keys().any(|existing_rectangle| {
-            existing_rectangle.top_left_corner.x < rectangle.bottom_right_corner.x
-                && existing_rectangle.bottom_right_corner.x > rectangle.top_left_corner.x
-                && existing_rectangle.top_left_corner.y < rectangle.bottom_right_corner.y
-                && existing_rectangle.bottom_right_corner.y > rectangle.top_left_corner.y
-        }) {
-            panic!("Given NFT rectangle collides with already minted one");
+        if let Err(error) = self.coordinates_check(rectangle, painting.clone()) {
+            // transfer tokens back to user
+            utils::transfer_ftokens(
+                tx_id,
+                &self.ft_program,
+                &exec::program_id(),
+                &msg_source,
+                rectangle_pixel_count as u128 * self.pixel_price,
+            )
+            .await?;
+            return Err(error);
         }
 
         // Painting
-
-        let rectangle_width = rectangle.width() as usize;
-        let rectangle_height = rectangle.height() as usize;
-        let rectangle_pixel_count = get_pixel_count(rectangle_width, rectangle_height);
-
-        check_painting(&painting, rectangle_pixel_count);
         paint(
             self.resolution,
             &rectangle,
@@ -137,104 +136,143 @@ impl NFTPixelboard {
             &mut self.painting,
             painting,
         );
-
-        // Payment and NFT minting
-
-        utils::transfer_ftokens(
-            self.ft_program,
-            msg_source,
-            self.owner,
-            rectangle_pixel_count as u128 * self.pixel_price,
-        )
-        .await;
-
-        let token_id = utils::mint_nft(self.nft_program, token_metadata).await;
-        utils::transfer_nft(self.nft_program, msg_source, token_id).await;
-
-        // Insertion and replying
-
-        self.tokens_by_rectangles.insert(
-            rectangle,
-            TokenInfo {
+        let token_info = self
+            .tokens_by_rectangles
+            .entry(rectangle)
+            .or_insert_with(|| TokenInfo {
                 owner: msg_source,
                 pixel_price: None,
-                token_id,
-            },
-        );
-        self.rectangles_by_token_ids.insert(token_id, rectangle);
+                token_id: None,
+            });
 
-        utils::reply(NFTPixelboardEvent::Minted(token_id));
+        let token_id = utils::mint_nft(tx_id, &self.nft_program, token_metadata).await?;
+        tx_id = tx_id.wrapping_add(1);
+        utils::transfer_nft(tx_id, &self.nft_program, &msg_source, token_id).await?;
+        utils::transfer_ftokens(
+            tx_id,
+            &self.ft_program,
+            &exec::program_id(),
+            &self.owner,
+            rectangle_pixel_count as u128 * self.pixel_price,
+        )
+        .await?;
+        // Insertion and replying
+        token_info.token_id = Some(token_id);
+        self.rectangles_by_token_ids.insert(token_id, rectangle);
+        Ok(NFTPixelboardEvent::Minted(token_id))
     }
 
-    async fn buy(&mut self, token_id: TokenId) {
+    async fn buy(
+        &mut self,
+        mut tx_id: TransactionId,
+        token_id: TokenId,
+    ) -> Result<NFTPixelboardEvent, NFTPixelboardError> {
         let msg_source = msg::source();
         let (rectangle, token) = get_mut_token(
             &self.rectangles_by_token_ids,
             &mut self.tokens_by_rectangles,
             token_id,
-        );
+        )?;
 
-        let pixel_price = token
-            .pixel_price
-            .unwrap_or_else(|| panic!("NFT isn't for sale"));
+        let pixel_price = if let Some(pixel_price) = token.pixel_price {
+            pixel_price
+        } else {
+            return Err(NFTPixelboardError::NFTIsNotOnSale);
+        };
+
         // get_pixel_count() isn't used here because it checks an NFT area for
         // equality to 0, but here it's always not equal 0.
         let token_price =
             (rectangle.width() as usize * rectangle.height() as usize) as u128 * pixel_price;
         let resale_commission = token_price * self.commission_percentage as u128 / 100;
 
-        utils::transfer_ftokens(self.ft_program, msg_source, self.owner, resale_commission).await;
         utils::transfer_ftokens(
-            self.ft_program,
-            msg_source,
-            token.owner,
+            tx_id,
+            &self.ft_program,
+            &msg_source,
+            &exec::program_id(),
+            token_price,
+        )
+        .await?;
+
+        tx_id = tx_id.wrapping_add(1);
+
+        utils::transfer_ftokens(
+            tx_id,
+            &self.ft_program,
+            &exec::program_id(),
+            &self.owner,
+            resale_commission,
+        )
+        .await?;
+
+        tx_id = tx_id.wrapping_add(1);
+
+        utils::transfer_ftokens(
+            tx_id,
+            &self.ft_program,
+            &exec::program_id(),
+            &token.owner,
             token_price - resale_commission,
         )
-        .await;
+        .await?;
+
+        utils::transfer_nft(0, &self.nft_program, &msg_source, token_id).await?;
 
         token.pixel_price = None;
         token.owner = msg_source;
-        utils::transfer_nft(self.nft_program, msg_source, token_id).await;
 
-        utils::reply(NFTPixelboardEvent::Bought(token_id));
+        Ok(NFTPixelboardEvent::Bought(token_id))
     }
 
-    async fn change_sale_state(&mut self, token_id: TokenId, pixel_price: Option<u128>) {
+    async fn change_sale_state(
+        &mut self,
+        tx_id: TransactionId,
+        token_id: TokenId,
+        pixel_price: Option<u128>,
+    ) -> Result<NFTPixelboardEvent, NFTPixelboardError> {
         let msg_source = msg::source();
         let (_, token) = get_mut_token(
             &self.rectangles_by_token_ids,
             &mut self.tokens_by_rectangles,
             token_id,
-        );
-        assert_eq!(token.owner, msg_source);
+        )?;
+        if token.owner != msg_source {
+            return Err(NFTPixelboardError::NotOwner);
+        }
 
         if let Some(price) = pixel_price {
-            check_pixel_price(price);
+            check_pixel_price(price)?;
             if token.pixel_price.is_none() {
-                utils::transfer_nft(self.nft_program, exec::program_id(), token_id).await;
+                utils::transfer_nft(tx_id, &self.nft_program, &exec::program_id(), token_id)
+                    .await?;
             }
         } else if token.pixel_price.is_some() {
-            utils::transfer_nft(self.nft_program, msg_source, token_id).await;
+            utils::transfer_nft(tx_id, &self.nft_program, &msg_source, token_id).await?;
         }
         token.pixel_price = pixel_price;
 
-        utils::reply(NFTPixelboardEvent::SaleStateChanged(token_id));
+        Ok(NFTPixelboardEvent::SaleStateChanged(token_id))
     }
 
-    fn paint(&mut self, token_id: TokenId, painting: Vec<Color>) {
+    fn paint(
+        &mut self,
+        token_id: TokenId,
+        painting: Vec<Color>,
+    ) -> Result<NFTPixelboardEvent, NFTPixelboardError> {
         let (rectangle, token) = get_mut_token(
             &self.rectangles_by_token_ids,
             &mut self.tokens_by_rectangles,
             token_id,
-        );
-        assert_eq!(token.owner, msg::source());
+        )?;
+        if token.owner != msg::source() {
+            return Err(NFTPixelboardError::NotOwner);
+        }
 
         let rectangle_width = rectangle.width() as usize;
         let rectangle_height = rectangle.height() as usize;
-        check_painting(
-            &painting,
-            get_pixel_count(rectangle_width, rectangle_height),
-        );
+        let pixel_count = get_pixel_count(rectangle_width, rectangle_height)?;
+        check_painting(&painting, pixel_count)?;
 
         paint(
             self.resolution,
@@ -245,7 +283,48 @@ impl NFTPixelboard {
             painting,
         );
 
-        utils::reply(NFTPixelboardEvent::Painted(token_id));
+        Ok(NFTPixelboardEvent::Painted(token_id))
+    }
+
+    fn coordinates_check(
+        &self,
+        rectangle: Rectangle,
+        painting: Vec<Color>,
+    ) -> Result<(), NFTPixelboardError> {
+        if rectangle.top_left_corner.x % self.block_side_length != 0
+            || rectangle.top_left_corner.y % self.block_side_length != 0
+            || rectangle.bottom_right_corner.x % self.block_side_length != 0
+            || rectangle.bottom_right_corner.y % self.block_side_length != 0
+        {
+            return Err(NFTPixelboardError::CoordinatesNotObserveBlockLayout);
+        }
+
+        if rectangle.top_left_corner.x > rectangle.bottom_right_corner.x
+            || rectangle.top_left_corner.y > rectangle.bottom_right_corner.y
+        {
+            return Err(NFTPixelboardError::CoordinatesWithWrongCorners);
+        }
+
+        if rectangle.bottom_right_corner.x > self.resolution.width
+            || rectangle.bottom_right_corner.y > self.resolution.height
+        {
+            return Err(NFTPixelboardError::CoordinatesOutOfCanvas);
+        }
+
+        if self.tokens_by_rectangles.keys().any(|existing_rectangle| {
+            existing_rectangle.top_left_corner.x < rectangle.bottom_right_corner.x
+                && existing_rectangle.bottom_right_corner.x > rectangle.top_left_corner.x
+                && existing_rectangle.top_left_corner.y < rectangle.bottom_right_corner.y
+                && existing_rectangle.bottom_right_corner.y > rectangle.top_left_corner.y
+        }) {
+            return Err(NFTPixelboardError::CoordinatesCollision);
+        }
+
+        let rectangle_width = rectangle.width() as usize;
+        let rectangle_height = rectangle.height() as usize;
+        let rectangle_pixel_count = get_pixel_count(rectangle_width, rectangle_height)?;
+
+        check_painting(&painting, rectangle_pixel_count)
     }
 }
 
@@ -280,10 +359,14 @@ extern "C" fn init() {
         panic!("`block_side_length` must be more than 0");
     }
 
-    check_painting(
-        &painting,
-        get_pixel_count(resolution.width, resolution.height),
-    );
+    let pixel_count = resolution.width as usize * resolution.height as usize;
+    if pixel_count == 0 {
+        panic!("Width & height of a canvas/NFT must be more than 0");
+    };
+
+    if painting.len() != pixel_count {
+        panic!("`painting` length must equal a pixel count in a canvas/NFT");
+    }
 
     if resolution.width % block_side_length != 0 || resolution.height % block_side_length != 0 {
         panic!("Each side of `resolution` must be a multiple of `block_side_length`");
@@ -293,7 +376,9 @@ extern "C" fn init() {
         panic!("`commission_percentage` mustn't be more than 100");
     }
 
-    check_pixel_price(pixel_price);
+    if pixel_price > MAX_PIXEL_PRICE {
+        panic!("`pixel_price` mustn't be more than `MAX_PIXEL_PRICE`");
+    }
 
     let program = NFTPixelboard {
         owner,
@@ -315,19 +400,56 @@ extern "C" fn init() {
 async fn main() {
     let action: NFTPixelboardAction = msg::load().expect("Unable to decode `NFTPixelboardAction`");
     let program = unsafe { PROGRAM.get_or_insert(Default::default()) };
-    match action {
+    let msg_source = msg::source();
+
+    let _reply: Result<NFTPixelboardEvent, NFTPixelboardError> =
+        Err(NFTPixelboardError::PreviousTxMustBeCompleted);
+    let tx_id = if let Some((tx_id, pend_action)) = program.txs.get(&msg_source) {
+        if action != *pend_action {
+            reply(_reply).expect(
+                "Failed to encode or reply with `Result<NFTPixelboardEvent, NFTPixelboardError>`",
+            );
+            return;
+        }
+        *tx_id
+    } else {
+        let tx_id = program.tx_id;
+        program.tx_id = program.tx_id.wrapping_add(MIN_STEP_FOR_TX);
+        program.txs.insert(msg_source, (tx_id, action.clone()));
+        tx_id
+    };
+
+    let result = match action.clone() {
         NFTPixelboardAction::Mint {
             rectangle,
             token_metadata,
             painting,
-        } => program.mint(rectangle, token_metadata, painting).await,
-        NFTPixelboardAction::Buy(token_id) => program.buy(token_id).await,
+        } => {
+            let reply = program
+                .mint(tx_id, rectangle, token_metadata, painting)
+                .await;
+            program.txs.remove(&msg_source);
+            reply
+        }
+        NFTPixelboardAction::Buy(token_id) => {
+            let reply = program.buy(tx_id, token_id).await;
+            program.txs.remove(&msg_source);
+            reply
+        }
         NFTPixelboardAction::ChangeSaleState {
             token_id,
             pixel_price,
-        } => program.change_sale_state(token_id, pixel_price).await,
+        } => {
+            let reply = program
+                .change_sale_state(tx_id, token_id, pixel_price)
+                .await;
+            program.txs.remove(&msg_source);
+            reply
+        }
         NFTPixelboardAction::Paint { token_id, painting } => program.paint(token_id, painting),
-    }
+    };
+    reply(result)
+        .expect("Failed to encode or reply with `Result<NFTPixelboardEvent, NFTPixelboardError>`");
 }
 
 #[no_mangle]
@@ -397,14 +519,6 @@ extern "C" fn meta_state() -> *mut [i32; 2] {
     gstd::util::to_leak_ptr(encoded)
 }
 
-gstd::metadata! {
-    title: "NFT pixelboard",
-    init:
-        input: InitNFTPixelboard,
-    handle:
-        input: NFTPixelboardAction,
-        output: NFTPixelboardEvent,
-    state:
-        input: NFTPixelboardStateQuery,
-        output: NFTPixelboardStateReply,
+fn reply(payload: impl Encode) -> GstdResult<MessageId> {
+    msg::reply(payload, 0)
 }
