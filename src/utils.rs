@@ -1,3 +1,4 @@
+use crate::contract::NFTPixelboard;
 use ft_logic_io::Action;
 use ft_main_io::{FTokenAction, FTokenEvent};
 use gear_lib::non_fungible_token::token::{TokenId, TokenMetadata};
@@ -74,5 +75,36 @@ pub async fn mint_nft(
     match reply {
         Ok(NFTEvent::Transfer(transfer)) => Ok(transfer.token_id),
         _ => Err(NFTPixelboardError::NFTMintFailed),
+    }
+}
+
+impl From<&NFTPixelboard> for NFTPixelboardState {
+    fn from(state: &NFTPixelboard) -> NFTPixelboardState {
+        NFTPixelboardState {
+            owner: state.owner,
+            block_side_length: state.block_side_length,
+            pixel_price: state.pixel_price,
+            resolution: state.resolution,
+            commission_percentage: state.commission_percentage,
+            painting: state.painting.clone(),
+            rectangles_by_token_ids: state
+                .rectangles_by_token_ids
+                .iter()
+                .map(|(key, value)| (*key, *value))
+                .collect(),
+            tokens_by_rectangles: state
+                .tokens_by_rectangles
+                .iter()
+                .map(|(key, value)| (*key, *value))
+                .collect(),
+            ft_program: state.ft_program,
+            nft_program: state.nft_program,
+            txs: state
+                .txs
+                .iter()
+                .map(|(key, value)| (*key, value.clone()))
+                .collect(),
+            tx_id: state.tx_id,
+        }
     }
 }

@@ -592,9 +592,20 @@ version = "0.1.0"
 source = "git+https://github.com/gear-tech/gear.git#d9074979976938230d602721a6a325d50c513681"
 dependencies = [
  "blake2-rfc",
+ "gmeta-codegen",
  "hex",
  "parity-scale-codec",
  "scale-info",
+]
+
+[[package]]
+name = "gmeta-codegen"
+version = "0.1.0"
+source = "git+https://github.com/gear-tech/gear.git#d9074979976938230d602721a6a325d50c513681"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]
@@ -856,6 +867,7 @@ dependencies = [
  "gtest",
  "nft-io",
  "nft-pixelboard-io",
+ "nft-pixelboard-state",
 ]
 
 [[package]]
@@ -863,9 +875,21 @@ name = "nft-pixelboard-io"
 version = "0.1.0"
 dependencies = [
  "gear-lib",
+ "gmeta",
  "gstd",
  "parity-scale-codec",
  "scale-info",
+]
+
+[[package]]
+name = "nft-pixelboard-state"
+version = "0.2.0"
+dependencies = [
+ "gear-lib",
+ "gear-wasm-builder",
+ "gmeta",
+ "gstd",
+ "nft-pixelboard-io",
 ]
 
 [[package]]
