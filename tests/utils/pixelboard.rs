@@ -39,9 +39,10 @@ impl<'a> NFTPixelboard<'a> {
     ) -> InitResult<NFTPixelboard<'a>, NFTPixelboardError> {
         let program = InnerProgram::current(system);
 
+        println!("here 1");
         let result = program.send(FOREIGN_USER, config);
         let is_active = system.is_active_program(program.id());
-
+        println!("here 2");
         InitResult::new(Self(program), result, is_active)
     }
 

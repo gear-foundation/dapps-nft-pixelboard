@@ -1,29 +1,36 @@
-.PHONY: all build fmt init lint pre-commit test full-test deps
+.PHONY: all build clean fmt fmt-check init linter pre-commit test
 
 all: init build test
 
 build:
-	@echo ⚙️ Building a release...
-	@cargo +nightly b -r --workspace
-	@ls -l target/wasm32-unknown-unknown/release/*.wasm
+	@echo ──────────── Build release ────────────────────
+	@cargo +nightly build --release
+	@ls -l ./target/wasm32-unknown-unknown/release/*.wasm
+
+clean:
+	@echo ──────────── Clean ────────────────────────────
+	@rm -rvf target
 
 fmt:
-	@echo ⚙️ Checking a format...
-	@cargo fmt --all --check
+	@echo ──────────── Format ───────────────────────────
+	@cargo fmt --all
+
+fmt-check:
+	@echo ──────────── Check format ─────────────────────
+	@cargo fmt --all -- --check
 
 init:
-	@echo ⚙️ Installing a toolchain \& a target...
+	@echo ──────────── Install toolchains ───────────────
 	@rustup toolchain add nightly
 	@rustup target add wasm32-unknown-unknown --toolchain nightly
 
-lint:
-	@echo ⚙️ Running the linter...
-	@cargo +nightly clippy --all-targets -- --no-deps -D warnings -A "clippy::missing_safety_doc"
+linter:
+	@echo ──────────── Run linter ───────────────────────
+	@cargo +nightly clippy --all-targets -- --no-deps -D warnings
 
-pre-commit: fmt lint full-test
+pre-commit: fmt linter test
 
-deps:
-	@echo ⚙️ Downloading dependencies...
+test: build
 	@path=target/ft_main.wasm;\
 	if [ ! -f $$path ]; then\
 	    curl -L\
@@ -54,12 +61,5 @@ deps:
 	        https://github.com/gear-dapps/non-fungible-token/releases/download/0.2.7/nft-0.2.7.opt.wasm\
 	        -o $$path;\
 	fi
-	
-# TODO: uncomment after fixing tests.
-# test: deps
-# 	@echo ⚙️ Running unit tests...
-# 	@cargo +nightly t -Fbinary-vendor
-
-# full-test: deps
-# 	@echo ⚙️ Running all tests...
-# 	@cargo +nightly t -Fbinary-vendor -- --include-ignored
+	@echo ──────────── Run tests ────────────────────────
+	@cargo +nightly test --release
