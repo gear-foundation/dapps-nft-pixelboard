@@ -4,7 +4,7 @@ all: init build test
 
 build:
 	@echo ──────────── Build release ────────────────────
-	@cargo +nightly build --release
+	@cargo +nightly build --release --workspace
 	@ls -l ./target/wasm32-unknown-unknown/release/*.wasm
 
 clean:
@@ -26,7 +26,7 @@ init:
 
 linter:
 	@echo ──────────── Run linter ───────────────────────
-	@cargo +nightly clippy --all-targets -- --no-deps -D warnings
+	@cargo +nightly clippy --workspace --all-targets -- --no-deps -D warnings
 
 pre-commit: fmt linter test
 

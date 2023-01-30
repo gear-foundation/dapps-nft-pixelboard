@@ -15,14 +15,10 @@ nft-io = { git = "https://github.com/gear-dapps/non-fungible-token.git", tag = "
 
 [dev-dependencies]
 gtest = { git = "https://github.com/gear-tech/gear.git" }
-nft-pixelboard-state = { path = "state" }
 
 [build-dependencies]
 gear-wasm-builder = { git = "https://github.com/gear-tech/gear.git" }
 nft-pixelboard-io = { path = "io" }
-
-[features]
-binary-vendor = ["nft-pixelboard-state/binary-vendor"]
 
 [workspace]
 members = ["state"]

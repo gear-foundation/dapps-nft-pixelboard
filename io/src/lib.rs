@@ -310,6 +310,10 @@ pub enum NFTPixelboardEvent {
 #[derive(Decode, Encode, TypeInfo)]
 pub enum NFTPixelboardError {
     ZeroWidthOrHeight,
+    ZeroAddress,
+    ZeroBlockSideLength,
+    WrongResolution,
+    WrongCommissionPercentage,
     WrongPaintingLength,
     PixelPriceExceeded,
     NFTNotFoundById,

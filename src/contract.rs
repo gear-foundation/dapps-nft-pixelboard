@@ -215,7 +215,7 @@ impl NFTPixelboard {
         )
         .await?;
 
-        utils::transfer_nft(0, &self.nft_program, &msg_source, token_id).await?;
+        utils::transfer_nft(tx_id, &self.nft_program, &msg_source, token_id).await?;
 
         token.pixel_price = None;
         token.owner = msg_source;
@@ -330,6 +330,17 @@ static mut PROGRAM: Option<NFTPixelboard> = None;
 
 #[no_mangle]
 extern "C" fn init() {
+    let result = process_init();
+    let is_err = result.is_err();
+
+    reply(result).expect("Failed to encode or reply with `Result<(), Error>` from `init()`");
+
+    if is_err {
+        exec::exit(ActorId::zero());
+    }   
+}
+
+fn process_init() -> Result<(), NFTPixelboardError> {
     let InitNFTPixelboard {
         owner,
         ft_program,
@@ -342,42 +353,41 @@ extern "C" fn init() {
     } = msg::load().expect("Unable to decode `InitNFTPixelboard`");
 
     if owner == ActorId::zero() {
-        panic!("`owner` address mustn't be `ActorId::zero()`");
+        return Err(NFTPixelboardError::ZeroAddress);
     }
 
     if ft_program == ActorId::zero() {
-        panic!("`ft_program` address mustn't be `ActorId::zero()`");
+        return Err(NFTPixelboardError::ZeroAddress);
     }
 
     if nft_program == ActorId::zero() {
-        panic!("`nft_program` address mustn't be `ActorId::zero()`");
+        return Err(NFTPixelboardError::ZeroAddress);
     }
 
     if block_side_length == 0 {
-        panic!("`block_side_length` must be more than 0");
+        return Err(NFTPixelboardError::ZeroBlockSideLength);
     }
 
     let pixel_count = resolution.width as usize * resolution.height as usize;
     if pixel_count == 0 {
-        panic!("Width & height of a canvas/NFT must be more than 0");
+        return Err(NFTPixelboardError::ZeroWidthOrHeight);
     };
 
     if painting.len() != pixel_count {
-        panic!("`painting` length must equal a pixel count in a canvas/NFT");
+       return Err(NFTPixelboardError::WrongPaintingLength);
     }
 
     if resolution.width % block_side_length != 0 || resolution.height % block_side_length != 0 {
-        panic!("Each side of `resolution` must be a multiple of `block_side_length`");
+        return Err(NFTPixelboardError::WrongResolution);
     }
 
     if commission_percentage > 100 {
-        panic!("`commission_percentage` mustn't be more than 100");
+        return Err(NFTPixelboardError::WrongCommissionPercentage);
     }
 
     if pixel_price > MAX_PIXEL_PRICE {
-        panic!("`pixel_price` mustn't be more than `MAX_PIXEL_PRICE`");
+        return Err(NFTPixelboardError::PixelPriceExceeded);
     }
-
     let program = NFTPixelboard {
         owner,
         ft_program,
@@ -392,8 +402,8 @@ extern "C" fn init() {
     unsafe {
         PROGRAM = Some(program);
     }
+    Ok(())
 }
-
 #[async_main]
 async fn main() {
     let action: NFTPixelboardAction = msg::load().expect("Unable to decode `NFTPixelboardAction`");
@@ -456,7 +466,7 @@ fn reply(payload: impl Encode) -> GstdResult<MessageId> {
 
 #[no_mangle]
 extern "C" fn state() {
-    let nft_pixelboard = unsafe { PROGRAM.as_ref().expect("Rrogram is not initialized") };
+    let nft_pixelboard = unsafe { PROGRAM.as_ref().expect("Program is not initialized") };
     let nft_pixelboard_state: NFTPixelboardState = nft_pixelboard.into();
     msg::reply(nft_pixelboard_state, 0).expect("Failed to share state");
 }
