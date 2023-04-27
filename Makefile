@@ -71,5 +71,5 @@ test:
 	        https://github.com/gear-dapps/non-fungible-token/releases/download/0.2.10/nft-0.2.10.opt.wasm\
 	        -o $$path;\
 	fi
-	@echo ⚙️ Running unit tests...
+	@echo ⚙️ Running tests...
 	@cargo +nightly t
