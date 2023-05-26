@@ -45,13 +45,13 @@ deps:
 	@path=target/nft_state.wasm;\
 	if [ ! -f $$path ]; then\
 	    curl -L\
-	        https://github.com/gear-dapps/non-fungible-token/releases/download/0.2.11/nft_state-0.2.11.meta.wasm \
+	        https://github.com/gear-dapps/non-fungible-token/releases/download/0.2.11/nft_state.meta.wasm\
 	        -o $$path;\
 	fi
 	@path=target/nft.opt.wasm;\
 	if [ ! -f $$path ]; then\
 	    curl -L\
-	        https://github.com/gear-dapps/non-fungible-token/releases/download/0.2.11/nft-0.2.11.opt.wasm\
+	        https://github.com/gear-dapps/non-fungible-token/releases/download/0.2.11/nft.opt.wasm\
 	        -o $$path;\
 	fi
 
