@@ -9,7 +9,7 @@ authors = ["Gear Technologies"]
 gstd = { git = "https://github.com/gear-tech/gear.git", rev = "5c685d0f15c412ab6ee019ceaf7ce084426dfb68", features = ["debug"] }
 nft-pixelboard-io = { path = "io" }
 gear-lib = { git = "https://github.com/gear-dapps/gear-lib", tag = "0.3.6" }
-ft-main-io = { git = "https://github.com/gear-dapps/sharded-fungible-token.git", tag = "2.1.1" }
+ft-main-io = { git = "https://github.com/gear-dapps/sharded-fungible-token.git", tag = "2.1.2" }
 nft-io = { git = "https://github.com/gear-dapps/non-fungible-token.git", tag = "0.2.10" }
 
 [dev-dependencies]
