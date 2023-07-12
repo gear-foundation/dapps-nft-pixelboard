@@ -86,17 +86,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "96d30a06541fbafbc7f82ed10c06164cfbd2c401138f6addd8404629c4b16711"
 
 [[package]]
-name = "atty"
-version = "0.2.14"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d9b39be18770d11421cdb1b9947a45dd3f37e93092cbf377614828a319d5fee8"
-dependencies = [
- "hermit-abi 0.1.19",
- "libc",
- "winapi",
-]
-
-[[package]]
 name = "autocfg"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -194,9 +183,9 @@ checksum = "14c189c53d098945499cdfa7ecc63567cf3886b3332b312a5b4585d8d3a6a610"
 
 [[package]]
 name = "camino"
-version = "1.1.4"
+version = "1.1.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c530edf18f37068ac2d977409ed5cd50d53d73bc653c7647b48eb78976ac9ae2"
+checksum = "c59e92b5a388f549b863a7bea62612c09f24c8393560709a54558a9abdfb3b9c"
 dependencies = [
  "serde",
 ]
@@ -253,13 +242,13 @@ dependencies = [
 
 [[package]]
 name = "colored"
-version = "2.0.1"
+version = "2.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "17bfac9400fe632590700de801b5dfbdca8b6944073832d1284bdbeef7f00e45"
+checksum = "2674ec482fbc38012cf31e6c42ba0177b431a0cb6f15fe40efa5aab1bda516f6"
 dependencies = [
- "atty",
+ "is-terminal",
  "lazy_static",
- "winapi",
+ "windows-sys",
 ]
 
 [[package]]
@@ -288,9 +277,9 @@ checksum = "e496a50fda8aacccc86d7529e2c1e0892dbd0f898a6b5645b5561b89c3210efa"
 
 [[package]]
 name = "cpufeatures"
-version = "0.2.8"
+version = "0.2.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "03e69e28e9f7f77debdedbaafa2866e1de9ba56df55a8bd7cfc724c25a09987c"
+checksum = "a17b76ff3a4162b0b27f354a0c87015ddad39d35f9c0c36607a3bdd175dde1f1"
 dependencies = [
  "libc",
 ]
@@ -417,7 +406,7 @@ checksum = "eecf8589574ce9b895052fa12d69af7a233f99e6107f5cb8dd1044f2a17bfdcb"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.23",
+ "syn 2.0.25",
 ]
 
 [[package]]
@@ -435,9 +424,9 @@ dependencies = [
 
 [[package]]
 name = "equivalent"
-version = "1.0.0"
+version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "88bffebc5d80432c9b140ee17875ff173a8ab62faad5b257da912bd2f6c1c0a1"
+checksum = "5443807d6dff69373d433ab9ef5378ad8df50ca6298caf15de6e52e24aaf54d5"
 
 [[package]]
 name = "errno"
@@ -472,7 +461,7 @@ dependencies = [
 [[package]]
 name = "ft-logic"
 version = "2.1.4"
-source = "git+https://github.com/gear-dapps/sharded-fungible-token?branch=update-deps#09063f4f720a9f786e2469b39ab7f4c914e300eb"
+source = "git+https://github.com/gear-dapps/sharded-fungible-token?tag=2.1.4#48ca7b3bb12becfa07da1dafbb266194135e388d"
 dependencies = [
  "ft-logic-io",
  "ft-main-io",
@@ -480,7 +469,7 @@ dependencies = [
  "gear-wasm-builder",
  "gmeta",
  "gstd",
- "hashbrown 0.13.2",
+ "hashbrown 0.14.0",
  "hex",
  "light_sr25519",
  "parity-scale-codec",
@@ -491,13 +480,13 @@ dependencies = [
 [[package]]
 name = "ft-logic-io"
 version = "2.1.4"
-source = "git+https://github.com/gear-dapps/sharded-fungible-token?branch=update-deps#09063f4f720a9f786e2469b39ab7f4c914e300eb"
+source = "git+https://github.com/gear-dapps/sharded-fungible-token?tag=2.1.4#48ca7b3bb12becfa07da1dafbb266194135e388d"
 dependencies = [
  "ft-main-io",
  "ft-storage-io",
  "gmeta",
  "gstd",
- "hashbrown 0.13.2",
+ "hashbrown 0.14.0",
  "parity-scale-codec",
  "primitive-types",
  "scale-info",
@@ -506,7 +495,7 @@ dependencies = [
 [[package]]
 name = "ft-main"
 version = "2.1.4"
-source = "git+https://github.com/gear-dapps/sharded-fungible-token?branch=update-deps#09063f4f720a9f786e2469b39ab7f4c914e300eb"
+source = "git+https://github.com/gear-dapps/sharded-fungible-token?tag=2.1.4#48ca7b3bb12becfa07da1dafbb266194135e388d"
 dependencies = [
  "ft-logic-io",
  "ft-main-io",
@@ -514,7 +503,7 @@ dependencies = [
  "gear-wasm-builder",
  "gmeta",
  "gstd",
- "hashbrown 0.13.2",
+ "hashbrown 0.14.0",
  "primitive-types",
  "sp-core-hashing",
 ]
@@ -522,7 +511,7 @@ dependencies = [
 [[package]]
 name = "ft-main-io"
 version = "2.1.4"
-source = "git+https://github.com/gear-dapps/sharded-fungible-token?branch=update-deps#09063f4f720a9f786e2469b39ab7f4c914e300eb"
+source = "git+https://github.com/gear-dapps/sharded-fungible-token?tag=2.1.4#48ca7b3bb12becfa07da1dafbb266194135e388d"
 dependencies = [
  "gmeta",
  "gstd",
@@ -534,20 +523,20 @@ dependencies = [
 [[package]]
 name = "ft-storage"
 version = "2.1.4"
-source = "git+https://github.com/gear-dapps/sharded-fungible-token?branch=update-deps#09063f4f720a9f786e2469b39ab7f4c914e300eb"
+source = "git+https://github.com/gear-dapps/sharded-fungible-token?tag=2.1.4#48ca7b3bb12becfa07da1dafbb266194135e388d"
 dependencies = [
  "ft-storage-io",
  "gear-wasm-builder",
  "gmeta",
  "gstd",
- "hashbrown 0.13.2",
+ "hashbrown 0.14.0",
  "primitive-types",
 ]
 
 [[package]]
 name = "ft-storage-io"
 version = "2.1.2"
-source = "git+https://github.com/gear-dapps/sharded-fungible-token?branch=update-deps#09063f4f720a9f786e2469b39ab7f4c914e300eb"
+source = "git+https://github.com/gear-dapps/sharded-fungible-token?tag=2.1.4#48ca7b3bb12becfa07da1dafbb266194135e388d"
 dependencies = [
  "gmeta",
  "gstd",
@@ -643,7 +632,7 @@ source = "git+https://github.com/gear-tech/gear?rev=946ac47#946ac47439c624dd002e
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.23",
+ "syn 2.0.25",
 ]
 
 [[package]]
@@ -725,7 +714,7 @@ dependencies = [
 [[package]]
 name = "gear-lib"
 version = "0.3.9"
-source = "git+https://github.com/gear-dapps/gear-lib?branch=update-deps#a6b6380bc0448f6e9ef05965609176c4606ec976"
+source = "git+https://github.com/gear-dapps/gear-lib?tag=0.3.9#86db1ea91aa5629fce9a365f72aba504a74460a4"
 dependencies = [
  "gear-lib-sr25519",
  "gstd",
@@ -738,23 +727,23 @@ dependencies = [
 [[package]]
 name = "gear-lib-derive"
 version = "0.3.9"
-source = "git+https://github.com/gear-dapps/gear-lib?branch=update-deps#a6b6380bc0448f6e9ef05965609176c4606ec976"
+source = "git+https://github.com/gear-dapps/gear-lib?tag=0.3.9#86db1ea91aa5629fce9a365f72aba504a74460a4"
 dependencies = [
  "gear-lib-macros",
  "proc-macro2",
  "quote",
- "syn 2.0.23",
+ "syn 2.0.25",
 ]
 
 [[package]]
 name = "gear-lib-macros"
 version = "0.3.9"
-source = "git+https://github.com/gear-dapps/gear-lib?branch=update-deps#a6b6380bc0448f6e9ef05965609176c4606ec976"
+source = "git+https://github.com/gear-dapps/gear-lib?tag=0.3.9#86db1ea91aa5629fce9a365f72aba504a74460a4"
 
 [[package]]
 name = "gear-lib-sr25519"
 version = "0.3.9"
-source = "git+https://github.com/gear-dapps/gear-lib?branch=update-deps#a6b6380bc0448f6e9ef05965609176c4606ec976"
+source = "git+https://github.com/gear-dapps/gear-lib?tag=0.3.9#86db1ea91aa5629fce9a365f72aba504a74460a4"
 dependencies = [
  "schnorrkel",
 ]
@@ -853,7 +842,7 @@ source = "git+https://github.com/gear-tech/gear?rev=946ac47#946ac47439c624dd002e
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.23",
+ "syn 2.0.25",
 ]
 
 [[package]]
@@ -882,7 +871,7 @@ source = "git+https://github.com/gear-tech/gear?rev=946ac47#946ac47439c624dd002e
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.23",
+ "syn 2.0.25",
 ]
 
 [[package]]
@@ -931,15 +920,6 @@ checksum = "2c6201b9ff9fd90a5a3bac2e56a830d0caa509576f0e503818ee82c181b3437a"
 dependencies = [
  "ahash",
  "allocator-api2",
-]
-
-[[package]]
-name = "hermit-abi"
-version = "0.1.19"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "62b467343b94ba476dcb2500d242dadbb39557df889310ac77c5d99100aaac33"
-dependencies = [
- "libc",
 ]
 
 [[package]]
@@ -1021,11 +1001,11 @@ checksum = "8e04e2fd2b8188ea827b32ef11de88377086d690286ab35747ef7f9bf3ccb590"
 
 [[package]]
 name = "is-terminal"
-version = "0.4.8"
+version = "0.4.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "24fddda5af7e54bf7da53067d6e802dbcc381d0a8eef629df528e3ebf68755cb"
+checksum = "cb0889898416213fab133e1d33a0e5858a48177452750691bde3666d0fdbaf8b"
 dependencies = [
- "hermit-abi 0.3.2",
+ "hermit-abi",
  "rustix",
  "windows-sys",
 ]
@@ -1145,7 +1125,7 @@ dependencies = [
 [[package]]
 name = "nft"
 version = "0.2.12"
-source = "git+https://github.com/gear-dapps/non-fungible-token?branch=update-deps#54f541d838ab52e0283b13fe29a6c69973a678df"
+source = "git+https://github.com/gear-dapps/non-fungible-token?tag=0.2.12#b8690f37257c780a14d877ac09e12d0c86f4d2f3"
 dependencies = [
  "gear-lib",
  "gear-lib-derive",
@@ -1161,7 +1141,7 @@ dependencies = [
 [[package]]
 name = "nft-io"
 version = "0.2.12"
-source = "git+https://github.com/gear-dapps/non-fungible-token?branch=update-deps#54f541d838ab52e0283b13fe29a6c69973a678df"
+source = "git+https://github.com/gear-dapps/non-fungible-token?tag=0.2.12#b8690f37257c780a14d877ac09e12d0c86f4d2f3"
 dependencies = [
  "gear-lib",
  "gmeta",
@@ -1393,9 +1373,9 @@ dependencies = [
 
 [[package]]
 name = "proc-macro2"
-version = "1.0.63"
+version = "1.0.64"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7b368fba921b0dce7e60f5e04ec15e565b3303972b42bcfde1d0713b881959eb"
+checksum = "78803b62cbf1f46fde80d7c0e803111524b9877184cfe7c3033659490ac7a7da"
 dependencies = [
  "unicode-ident",
 ]
@@ -1472,9 +1452,21 @@ dependencies = [
 
 [[package]]
 name = "regex"
-version = "1.8.4"
+version = "1.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d0ab3ca65655bb1e41f2a8c8cd662eb4fb035e67c3f78da1d61dffe89d07300f"
+checksum = "b2eae68fc220f7cf2532e4494aded17545fce192d59cd996e0fe7887f4ceb575"
+dependencies = [
+ "aho-corasick",
+ "memchr",
+ "regex-automata",
+ "regex-syntax",
+]
+
+[[package]]
+name = "regex-automata"
+version = "0.3.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "39354c10dd07468c2e73926b23bb9c2caca74c5501e38a35da70406f1d923310"
 dependencies = [
  "aho-corasick",
  "memchr",
@@ -1483,9 +1475,9 @@ dependencies = [
 
 [[package]]
 name = "regex-syntax"
-version = "0.7.2"
+version = "0.7.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "436b050e76ed2903236f032a59761c1eb99e1b0aead2c257922771dab1fc8c78"
+checksum = "e5ea92a5b6195c6ef2a0295ea818b312502c6fc94dde986c5553242e18fd4ce2"
 
 [[package]]
 name = "region"
@@ -1516,9 +1508,9 @@ dependencies = [
 
 [[package]]
 name = "rustix"
-version = "0.38.2"
+version = "0.38.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "aabcb0461ebd01d6b79945797c27f8529082226cb630a9865a71870ff63532a4"
+checksum = "0a962918ea88d644592894bc6dc55acc6c0956488adcebbfb6e273506b7fd6e5"
 dependencies = [
  "bitflags 2.3.3",
  "errno",
@@ -1584,29 +1576,29 @@ dependencies = [
 
 [[package]]
 name = "serde"
-version = "1.0.166"
+version = "1.0.171"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d01b7404f9d441d3ad40e6a636a7782c377d2abdbe4fa2440e2edcc2f4f10db8"
+checksum = "30e27d1e4fd7659406c492fd6cfaf2066ba8773de45ca75e855590f856dc34a9"
 dependencies = [
  "serde_derive",
 ]
 
 [[package]]
 name = "serde_derive"
-version = "1.0.166"
+version = "1.0.171"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5dd83d6dde2b6b2d466e14d9d1acce8816dedee94f735eac6395808b3483c6d6"
+checksum = "389894603bd18c46fa56231694f8d827779c0951a667087194cf9de94ed24682"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.23",
+ "syn 2.0.25",
 ]
 
 [[package]]
 name = "serde_json"
-version = "1.0.99"
+version = "1.0.102"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "46266871c240a00b8f503b877622fe33430b3c7d963bdc0f2adc511e54a1eae3"
+checksum = "b5062a995d481b2308b6064e9af76011f2921c35f97b0468811ed9f6cd91dfed"
 dependencies = [
  "itoa",
  "ryu",
@@ -1714,9 +1706,9 @@ dependencies = [
 
 [[package]]
 name = "syn"
-version = "2.0.23"
+version = "2.0.25"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "59fb7d6d8281a51045d62b8eb3a7d1ce347b76f312af50cd3dc0af39c87c1737"
+checksum = "15e3fc8c0c74267e2df136e5e5fb656a464158aa57624053375eb9c8c6e25ae2"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1734,22 +1726,22 @@ dependencies = [
 
 [[package]]
 name = "thiserror"
-version = "1.0.40"
+version = "1.0.43"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "978c9a314bd8dc99be594bc3c175faaa9794be04a5a5e153caba6915336cebac"
+checksum = "a35fc5b8971143ca348fa6df4f024d4d55264f3468c71ad1c2f365b0a4d58c42"
 dependencies = [
  "thiserror-impl",
 ]
 
 [[package]]
 name = "thiserror-impl"
-version = "1.0.40"
+version = "1.0.43"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f9456a42c5b0d803c8cd86e73dd7cc9edd429499f37a3550d286d5e86720569f"
+checksum = "463fe12d7993d3b327787537ce8dd4dfa058de32fc2b195ef3cde03dc4771e8f"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.23",
+ "syn 2.0.25",
 ]
 
 [[package]]
@@ -1776,9 +1768,9 @@ dependencies = [
 
 [[package]]
 name = "toml"
-version = "0.7.5"
+version = "0.7.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1ebafdf5ad1220cb59e7d17cf4d2c72015297b75b19a10472f99b89225089240"
+checksum = "c17e963a819c331dcacd7ab957d80bc2b9a9c1e71c804826d2f283dd65306542"
 dependencies = [
  "serde",
  "serde_spanned",
@@ -1797,9 +1789,9 @@ dependencies = [
 
 [[package]]
 name = "toml_edit"
-version = "0.19.11"
+version = "0.19.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "266f016b7f039eec8a1a80dfe6156b633d208b9fccca5e4db1d6775b0c4e34a7"
+checksum = "c500344a19072298cd05a7224b3c0c629348b78692bf48466c5238656e315a78"
 dependencies = [
  "indexmap",
  "serde",
@@ -1882,7 +1874,7 @@ dependencies = [
  "once_cell",
  "proc-macro2",
  "quote",
- "syn 2.0.23",
+ "syn 2.0.25",
  "wasm-bindgen-shared",
 ]
 
@@ -1904,7 +1896,7 @@ checksum = "54681b18a46765f095758388f2d0cf16eb8d4169b639ab575a8f5693af210c7b"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.23",
+ "syn 2.0.25",
  "wasm-bindgen-backend",
  "wasm-bindgen-shared",
 ]
@@ -2082,9 +2074,9 @@ checksum = "1a515f5799fe4961cb532f983ce2b23082366b898e52ffbce459c86f67c8378a"
 
 [[package]]
 name = "winnow"
-version = "0.4.7"
+version = "0.4.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ca0ace3845f0d96209f0375e6d367e3eb87eb65d27d445bdc9f1843a26f39448"
+checksum = "81a2094c43cc94775293eaa0e499fbc30048a6d824ac82c0351a8c0bf9112529"
 dependencies = [
  "memchr",
 ]
@@ -2106,5 +2098,5 @@ checksum = "ce36e65b0d2999d2aafac989fb249189a141aee1f53c612c1f37d72631959f69"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.23",
+ "syn 2.0.25",
 ]
