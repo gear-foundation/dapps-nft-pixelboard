@@ -461,7 +461,7 @@ dependencies = [
 [[package]]
 name = "ft-logic"
 version = "2.1.4"
-source = "git+https://github.com/gear-dapps/sharded-fungible-token?tag=2.1.4#48ca7b3bb12becfa07da1dafbb266194135e388d"
+source = "git+https://github.com/gear-dapps/sharded-fungible-token?tag=2.1.4#13e7fcd8e47dbdfecccb91907e8f8eb877050aec"
 dependencies = [
  "ft-logic-io",
  "ft-main-io",
@@ -480,7 +480,7 @@ dependencies = [
 [[package]]
 name = "ft-logic-io"
 version = "2.1.4"
-source = "git+https://github.com/gear-dapps/sharded-fungible-token?tag=2.1.4#48ca7b3bb12becfa07da1dafbb266194135e388d"
+source = "git+https://github.com/gear-dapps/sharded-fungible-token?tag=2.1.4#13e7fcd8e47dbdfecccb91907e8f8eb877050aec"
 dependencies = [
  "ft-main-io",
  "ft-storage-io",
@@ -495,7 +495,7 @@ dependencies = [
 [[package]]
 name = "ft-main"
 version = "2.1.4"
-source = "git+https://github.com/gear-dapps/sharded-fungible-token?tag=2.1.4#48ca7b3bb12becfa07da1dafbb266194135e388d"
+source = "git+https://github.com/gear-dapps/sharded-fungible-token?tag=2.1.4#13e7fcd8e47dbdfecccb91907e8f8eb877050aec"
 dependencies = [
  "ft-logic-io",
  "ft-main-io",
@@ -511,7 +511,7 @@ dependencies = [
 [[package]]
 name = "ft-main-io"
 version = "2.1.4"
-source = "git+https://github.com/gear-dapps/sharded-fungible-token?tag=2.1.4#48ca7b3bb12becfa07da1dafbb266194135e388d"
+source = "git+https://github.com/gear-dapps/sharded-fungible-token?tag=2.1.4#13e7fcd8e47dbdfecccb91907e8f8eb877050aec"
 dependencies = [
  "gmeta",
  "gstd",
@@ -523,7 +523,7 @@ dependencies = [
 [[package]]
 name = "ft-storage"
 version = "2.1.4"
-source = "git+https://github.com/gear-dapps/sharded-fungible-token?tag=2.1.4#48ca7b3bb12becfa07da1dafbb266194135e388d"
+source = "git+https://github.com/gear-dapps/sharded-fungible-token?tag=2.1.4#13e7fcd8e47dbdfecccb91907e8f8eb877050aec"
 dependencies = [
  "ft-storage-io",
  "gear-wasm-builder",
@@ -536,7 +536,7 @@ dependencies = [
 [[package]]
 name = "ft-storage-io"
 version = "2.1.2"
-source = "git+https://github.com/gear-dapps/sharded-fungible-token?tag=2.1.4#48ca7b3bb12becfa07da1dafbb266194135e388d"
+source = "git+https://github.com/gear-dapps/sharded-fungible-token?tag=2.1.4#13e7fcd8e47dbdfecccb91907e8f8eb877050aec"
 dependencies = [
  "gmeta",
  "gstd",
